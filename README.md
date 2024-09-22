@@ -31,8 +31,8 @@ mkdir build
 cd build
 
 cmake -G Ninja .. \
-  -DLLVM_DIR=$PWD/../third_part/llvm-project/build/lib/cmake/llvm \
-  -DMLIR_DIR=$PWD/../third_part/llvm-project/build/lib/cmake/mlir \
+  -DLLVM_DIR=$PWD/../third_party/llvm-project/build/lib/cmake/llvm \
+  -DMLIR_DIR=$PWD/../third_party/llvm-project/build/lib/cmake/mlir \
   -DCMAKE_BUILD_TYPE=DEBUG
 
 cmake --build . --target snn-opt
