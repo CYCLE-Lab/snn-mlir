@@ -1,9 +1,9 @@
 cmake_minimum_required(VERSION 3.13.4)
 
-if(POLICY CMP0068)
-  cmake_policy(SET CMP0068 NEW)
-  set(CMAKE_BUILD_WITH_INSTALL_NAME_DIR ON)
-endif()
+# if(POLICY CMP0068)
+#   cmake_policy(SET CMP0068 NEW)
+#   set(CMAKE_BUILD_WITH_INSTALL_NAME_DIR ON)
+# endif()
 
 if(POLICY CMP0075)
   cmake_policy(SET CMP0075 NEW)
