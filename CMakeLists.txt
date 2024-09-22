@@ -17,7 +17,7 @@ if(POLICY CMP0116)
   cmake_policy(SET CMP0116 NEW)
 endif()
 
-project(mlir-snn LANGUAGES CXX C)
+project(snn-mlir LANGUAGES CXX C)
 
 set(CMAKE_CXX_STANDARD 17 CACHE STRING "C++ standard to conform to")
 
@@ -46,4 +46,5 @@ add_definitions(${LLVM_DEFINITIONS})
 
 add_subdirectory(include)
 add_subdirectory(lib)
+add_subdirectory(python)
 add_subdirectory(snn-opt)
