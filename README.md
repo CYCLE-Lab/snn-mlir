@@ -36,10 +36,5 @@ cmake -G Ninja .. \
   -DMLIR_DIR=$PWD/../third_party/llvm-project/build/lib/cmake/mlir \
   -DCMAKE_BUILD_TYPE=DEBUG
 
-cmake -G Ninja .. \
-  -DLLVM_DIR=/data/dagongcheng/llvm-newest/llvm-project/build/lib/cmake/llvm \
-  -DMLIR_DIR=/data/dagongcheng/llvm-newest/llvm-project/build/lib/cmake/mlir \
-  -DCMAKE_BUILD_TYPE=release
-
 cmake --build . --target snn-opt
 ```
