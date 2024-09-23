@@ -1,1 +1,1 @@
-add_subdirectory(snn-pybind)
+add_subdirectory(pysnn)
