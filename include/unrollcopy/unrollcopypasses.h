@@ -15,19 +15,16 @@
 // specific language governing permissions and limitations
 // under the License.
 
-#ifndef MLIR_SNN_PASSES_H
-#define MLIR_SNN_PASSES_H
+#ifndef MLIR_SNN_MEMREF_COPY_TO_LOOP_UNROLL_PASS_H
+#define MLIR_SNN_MEMREF_COPY_TO_LOOP_UNROLL_PASS_H
 
 #include <memory>
 
 #include "mlir/Pass/Pass.h"
 
 namespace snn {
-std::unique_ptr<mlir::Pass> createSNNToStdPass();
-
-
 std::unique_ptr<mlir::Pass> createMemrefCopyToLoopUnrollPass();
 } 
 
 
-#endif // MLIR_HELLO_PASSES_H
+#endif // MLIR_SNN_MEMREF_COPY_TO_LOOP_UNROLL_PASS_H
