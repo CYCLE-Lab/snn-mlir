@@ -1,6 +1,7 @@
 #include "mlir/Dialect/Arith/IR/Arith.h"
 #include "mlir/Dialect/SCF/IR/SCF.h"
 #include "mlir/Dialect/Tensor/IR/Tensor.h"
+#include "mlir/Dialect/Linalg/IR/Linalg.h"
 #include "mlir/Pass/Pass.h"
 #include "mlir/Transforms/DialectConversion.h"
 #include "mlir/Transforms/DialectConversion.h"
@@ -45,7 +46,7 @@ struct lifOpLowering : public OpRewritePattern<snn::lifOp> {
 
   // 1. 将标量 tau 转换为张量，以匹配 voltage 的类型
   Value tauConst = rewriter.create<arith::ConstantOp>(loc, rewriter.getF32FloatAttr(tau));
-  // Value tauTensor = rewriter.create<tensor::SplatOp>(loc, voltage.getType(), tauConst);
+  Value tauTensor = rewriter.create<tensor::SplatOp>(loc, voltage.getType(), tauConst);
 
   // 计算衰减电压和输入加权和 (voltage = voltage * (1 - tau) + input)
   Value oneMinusTau = rewriter.create<arith::SubFOp>(loc, rewriter.create<arith::ConstantOp>(loc, rewriter.getF32FloatAttr(1.0f)), tauConst);
@@ -69,13 +70,15 @@ struct lifOpLowering : public OpRewritePattern<snn::lifOp> {
   Value thresholdTensor = rewriter.create<tensor::SplatOp>(loc, updatedVoltage.getType(), thresholdVal);
 
     // 获取张量的形状
-  auto tType = dyn_cast<RankedTensorType>(updatedVoltage.getType());
+  auto tType = updatedVoltage.getType().cast<RankedTensorType>();
   auto shape = tType.getShape();
+  // auto emptyTensor = rewriter.create<tensor::EmptyOp>(loc, shape, rewriter.getF32Type());
+  // llvm::outs() << emptyTensor;
 
   // 对张量进行比较
   Value cmp = rewriter.create<arith::CmpFOp>(loc, arith::CmpFPredicate::OGT, updatedVoltage, thresholdTensor);
 
-    // 创建scf::ForOp来遍历每个元素
+  // 创建scf::ForOp来遍历每个元素
   Value zeroIndex = rewriter.create<arith::ConstantIndexOp>(loc, 0);
   Value dimX = rewriter.create<arith::ConstantIndexOp>(loc, shape[0]);
   Value dimY = rewriter.create<arith::ConstantIndexOp>(loc, shape[1]);
@@ -86,29 +89,29 @@ struct lifOpLowering : public OpRewritePattern<snn::lifOp> {
 
   Value oneIndex = rewriter.create<arith::ConstantIndexOp>(loc, 1);
 
-    rewriter.create<scf::ForOp>(
-    loc, zeroIndex, dimX, oneIndex, std::nullopt,
+  auto outerForOp = rewriter.create<scf::ForOp>(
+    loc, zeroIndex, dimX, oneIndex, updatedVoltage,
     [&](OpBuilder &builder, Location loc, Value i, ValueRange iterArgs) {
-      builder.create<scf::ForOp>(
-        loc, zeroIndex, dimY, oneIndex, std::nullopt,
-        [&](OpBuilder &b, Location loc, Value j, ValueRange iterArgs) {
+      Value currentTensor = iterArgs[0];
+      auto innerForOp = builder.create<scf::ForOp>(
+        loc, zeroIndex, dimY, oneIndex, currentTensor,
+        [&](OpBuilder &b, Location loc, Value j, ValueRange innerIterArgs) {
           Value elemCmp = b.create<tensor::ExtractOp>(loc, cmp, ValueRange{i, j});
-            //如果超过阈值，生成脉冲并重置电压
-          b.create<scf::IfOp>(loc, elemCmp, 
+          auto ifOp = b.create<scf::IfOp>(loc, elemCmp, 
             [&](OpBuilder &b2, Location loc) {  
-              Value newTensor = b2.create<tensor::InsertOp>(loc, OneConsValue, updatedVoltage, ValueRange{i, j});
+              Value newTensor = b2.create<tensor::InsertOp>(loc, OneConsValue, innerIterArgs[0], ValueRange{i, j});
               b2.create<scf::YieldOp>(loc,newTensor);
             },
             [&](OpBuilder &b2, Location loc) {  // else 分支
-              Value newTensor = b2.create<tensor::InsertOp>(loc,ZeroConsValue, updatedVoltage, ValueRange{i, j});
+              Value newTensor = b2.create<tensor::InsertOp>(loc, ZeroConsValue, innerIterArgs[0], ValueRange{i, j});
               b2.create<scf::YieldOp>(loc,newTensor);
             });
-
-        b.create<scf::YieldOp>(loc);             
+          b.create<scf::YieldOp>(loc, ifOp->getResult(0));             
         });      
-    
-      builder.create<scf::YieldOp>(loc);
+      builder.create<scf::YieldOp>(loc, innerForOp->getResult(0));
     });
+
+  auto newTensor = outerForOp->getResult(0);
   // 3. 如果超过阈值，生成脉冲并重置电压
   // rewriter.create<scf::IfOp>(loc, trueConstant, [&](OpBuilder &b, Location loc) {
   //   b.create<arith::ConstantOp>(loc, rewriter.getF32FloatAttr(0.0f));
@@ -116,7 +119,7 @@ struct lifOpLowering : public OpRewritePattern<snn::lifOp> {
   // });
 
   // 用新的 voltage 替换原始的 LIF 操作
-  rewriter.replaceOp(op, updatedVoltage);
+  rewriter.replaceOp(op, newTensor);
 
   return success();
 }
@@ -136,6 +139,7 @@ public:
   void getDependentDialects(mlir::DialectRegistry &registry) const override {
   registry.insert<mlir::arith::ArithDialect, 
                   mlir::scf::SCFDialect, 
+                  mlir::linalg::LinalgDialect,
                   mlir::tensor::TensorDialect>();  // 添加 TensorDialect
 }
 

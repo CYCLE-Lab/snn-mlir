@@ -12,7 +12,7 @@
 
 #include "SNN/SNNDialect.h"      // 引入 SNN 方言
 #include "SNN/SNNPasses.h"       // 引入 SNN 定义的 pass
-
+#include "SNN/SNNToLinalgOpspasses.h"
 
 
 int main(int argc, char **argv) {
@@ -31,6 +31,15 @@ int main(int argc, char **argv) {
   registry.insert<mlir::linalg::LinalgDialect>();
   // snn::registerSNNToStdPass();
 
+  mlir::MLIRContext context;
+  context.appendDialectRegistry(registry);
+  // 显式加载所有注册的方言
+  context.loadAllAvailableDialects();
+
+//注册自定义pass
+  mlir::registerPass([]() -> std::unique_ptr<::mlir::Pass> {
+      return snn::createSNNToLinalgOpsPass();
+    });
   mlir::registerPass([]() -> std::unique_ptr<::mlir::Pass> {
       return snn::createSNNToStdPass();
     });

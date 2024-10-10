@@ -23,9 +23,7 @@
 #include "mlir/Pass/Pass.h"
 
 namespace snn {
-std::unique_ptr<mlir::Pass> createSNNToStdPass();
 std::unique_ptr<mlir::Pass> createSNNToLinalgOpsPass();
-std::unique_ptr<mlir::Pass> createMemrefCopyToLoopUnrollPass();
 } 
 
 
