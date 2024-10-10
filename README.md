@@ -19,9 +19,9 @@ cmake -G Ninja ../llvm \
    -DMLIR_ENABLE_BINDINGS_PYTHON=ON \
    -DLLVM_ENABLE_LIBEDIT=OFF
 
-cmake --build .
+ninja
 
-cmake --build . --target check-mlir
+ninja check-mlir
 ```
 
 2. Build SNN-MLIR:
@@ -36,5 +36,5 @@ cmake -G Ninja .. \
   -DMLIR_DIR=$PWD/../third_party/llvm-project/build/lib/cmake/mlir \
   -DCMAKE_BUILD_TYPE=DEBUG
 
-cmake --build . --target snn-opt
+ninja snn-opt
 ```
