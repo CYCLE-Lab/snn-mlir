@@ -1,0 +1,3 @@
+add_subdirectory(SNNToStd)
+add_subdirectory(SNNToLinalgOps)
+add_subdirectory(unrollcopy)

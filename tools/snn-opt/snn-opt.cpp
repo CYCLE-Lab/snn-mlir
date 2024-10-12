@@ -10,9 +10,10 @@
 #include "mlir/Pass/PassManager.h"
 #include "mlir/Tools/mlir-opt/MlirOptMain.h"
 
-#include "SNN/SNNDialect.h"      // 引入 SNN 方言
-#include "SNN/SNNPasses.h"       // 引入 SNN 定义的 pass
-#include "SNN/SNNToLinalgOpspasses.h"
+#include "snn-mlir/Dialect/SNN/SNNDialect.h"      // 引入 SNN 方言
+#include "snn-mlir/Conversion/SNNToStd/SNNPasses.h"       // 引入 SNN 定义的 pass
+#include "snn-mlir/Conversion/SNNToLinalgOps/SNNToLinalgOpspasses.h"
+#include "snn-mlir/Conversion/unrollcopy/unrollcopypasses.h"
 
 
 int main(int argc, char **argv) {
@@ -21,7 +22,7 @@ int main(int argc, char **argv) {
   // 注册 SNN 方言
   registry.insert<snn::SNNDialect>();
 
-  // 注册必要的其他方言，例如 Arith 和 SCF
+  // 注册必要的其他方言
   registry.insert<mlir::arith::ArithDialect>();
   registry.insert<mlir::func::FuncDialect>();
   registry.insert<mlir::scf::SCFDialect>();
@@ -29,7 +30,7 @@ int main(int argc, char **argv) {
   registry.insert<mlir::memref::MemRefDialect>();
   registry.insert<mlir::affine::AffineDialect>();
   registry.insert<mlir::linalg::LinalgDialect>();
-  // snn::registerSNNToStdPass();
+
 
   mlir::MLIRContext context;
   context.appendDialectRegistry(registry);
@@ -37,11 +38,14 @@ int main(int argc, char **argv) {
   context.loadAllAvailableDialects();
 
 //注册自定义pass
-  mlir::registerPass([]() -> std::unique_ptr<::mlir::Pass> {
-      return snn::createSNNToLinalgOpsPass();
-    });
+
+
   mlir::registerPass([]() -> std::unique_ptr<::mlir::Pass> {
       return snn::createSNNToStdPass();
+    });
+
+  mlir::registerPass([]() -> std::unique_ptr<::mlir::Pass> {
+      return snn::createSNNToLinalgOpsPass();
     });
 
   mlir::registerPass([]() -> std::unique_ptr<::mlir::Pass> {

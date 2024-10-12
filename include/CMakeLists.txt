@@ -1,3 +1,2 @@
-add_subdirectory(SNN)
-add_subdirectory(LinalgExt)
+add_subdirectory(snn-mlir/Dialect)
 

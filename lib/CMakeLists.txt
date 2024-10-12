@@ -1,2 +1,2 @@
-add_subdirectory(SNN)
-add_subdirectory(unrollcopy)
+add_subdirectory(Conversion)
+add_subdirectory(Dialect)
