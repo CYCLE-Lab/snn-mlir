@@ -7,13 +7,10 @@
 
 namespace py = pybind11;
 
-PYBIND11_MODULE(your_module_name, m) {
-    // 绑定Dialect
-    mlir::python::exposeDialectInPython(m, snn::getDialectNamespace(),
-                                        [](mlir::MLIRContext *context) {
-        return std::make_unique<snn>(context);
-    });
+PYBIND11_MODULE(_mlirRegisterEverything, m) {
+  m.doc() = "SNN-MLIR Dialects Registration";
 
-    // 绑定具体的Op
-    mlir::python::exposeOperationInPython<snn::lifOp>(m, "lif");
+  m.def("register_dialects", [](MlirDialectRegistry registry) {
+    mlirRegisterAllDialects(registry);
+  });
 }
