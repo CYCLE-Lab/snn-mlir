@@ -1,7 +1,7 @@
-
 #include "snn-mlir-c/SNN.h"
-#include "mlir/CAPI/Registration.h"
 #include "snn-mlir/Dialect/SNN/SNNDialect.h"
+
+#include "mlir/CAPI/Registration.h"
 
 using namespace mlir;
 using namespace snn-mlir;
