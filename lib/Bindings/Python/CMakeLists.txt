@@ -12,8 +12,11 @@ include(AddMLIRPython)
 # Declare native Python extension
 ################################################################################
 
-declare_mlir_python_extension(SNNMLIRBindingsPythonExtension
+declare_mlir_python_sources(SNNMLIRBindingsPythonExtension)
+
+declare_mlir_python_extension(SNNMLIRBindingsPythonExtension.Core
   MODULE_NAME _snn
+  ADD_TO_PARENT SNNMLIRBindingsPythonExtension
   SOURCES
     SNNModules.cpp
   EMBED_CAPI_LINK_LIBS
@@ -34,6 +37,7 @@ declare_mlir_python_sources(SNNMLIRBindingsPythonSources
   ROOT_DIR "${CMAKE_CURRENT_SOURCE_DIR}"
   SOURCES
     snn-mlir/__init__.py
+    snn-mlir/dialects/_ods_common.py
 )
 
 ################################################################################
@@ -78,7 +82,7 @@ add_mlir_python_common_capi_library(SNNMLIRBindingsPythonCAPI
 # The MLIR API is position independent, so we explicitly output it to the mlir/
 # folder as a temporary measure. It will eventually migrate under the scalehls/
 # folder and be accessible under the unified "import snn..." namespace.
-add_mlir_python_modules(SNNMLIRBindingsPythonModules
+add_mlir_python_modules(SNNMLIRPythonModules
   ROOT_PREFIX "${SNNMLIR_PYTHON_PACKAGES_DIR}/snn-mlir_core/mlir/"
   INSTALL_PREFIX "python_packages/snn-mlir_core/mlir/"
   DECLARED_SOURCES
@@ -92,7 +96,7 @@ add_mlir_python_modules(SNNMLIRBindingsPythonModules
 )
 
 # Bundle the SNNMLIR python sources into our package.
-add_mlir_python_modules(SNNBindingsPythonModules
+add_mlir_python_modules(SNNPythonModules
   ROOT_PREFIX "${SNNMLIR_PYTHON_PACKAGES_DIR}/snn-mlir_core"
   INSTALL_PREFIX "python_packages/snn-mlir_core"
   DECLARED_SOURCES
