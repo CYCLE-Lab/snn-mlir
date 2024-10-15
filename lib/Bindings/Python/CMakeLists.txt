@@ -3,8 +3,6 @@
 ################################################################################
 
 include(AddMLIRPython)
-include(MLIRDetectPythonEnv)
-mlir_configure_python_dev_packages()
 
 set(SNN_MLIR_PYTHON_ROOT_DIR "${CMAKE_CURRENT_SOURCE_DIR}")
 message(STATUS "Using SNN_MLIR_PYTHON_ROOT_DIR in: ${SNN_MLIR_PYTHON_ROOT_DIR}")

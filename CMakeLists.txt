@@ -47,13 +47,30 @@ link_directories(${LLVM_BUILD_LIBRARY_DIR})
 
 add_definitions(${LLVM_DEFINITIONS})
 
-# set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}\
-#   -Werror  -Wno-unused-result\
-#   -Wreturn-type  -Wunused-variable"
-# )
-# message(STATUS "CMAKE_CXX_FLAGS: ${CMAKE_CXX_FLAGS}")
+option(SNNMLIR_ENABLE_BINDINGS_PYTHON "Enables SNNMLIR Python bindings." OFF)
+
+if(SNNMLIR_ENABLE_BINDINGS_PYTHON)
+  message(STATUS "SNNMLIR Python bindings are enabled.")
+
+  include(MLIRDetectPythonEnv)
+  mlir_configure_python_dev_packages()
+  find_package(Python3 COMPONENTS Interpreter Development NumPy REQUIRED)
+  message(STATUS "Found Python include dirs: ${Python3_INCLUDE_DIRS}")
+  message(STATUS "Found Python libraries: ${Python3_LIBRARIES}")
+  message(STATUS "Found Python executable: ${Python3_EXECUTABLE}")
+  message(STATUS "Found numpy v${Python3_NumPy_VERSION}: ${Python3_NumPy_INCLUDE_DIRS}")
+  include_directories(${Python3_NumPy_INCLUDE_DIRS})
+
+  mlir_detect_pybind11_install()
+  find_package(pybind11 CONFIG REQUIRED)
+  message(STATUS "Found pybind11 v${pybind11_VERSION}: ${pybind11_INCLUDE_DIR}")
+  message(STATUS "Python prefix = '${PYTHON_MODULE_PREFIX}', "
+                 "suffix = '${PYTHON_MODULE_SUFFIX}', "
+                 "extension = '${PYTHON_MODULE_EXTENSION}'")
+else()
+  message(STATUS "SNNMLIR Python bindings are disabled.")
+endif()
 
 add_subdirectory(include)
 add_subdirectory(lib)
-# add_subdirectory(python)
 add_subdirectory(tools)

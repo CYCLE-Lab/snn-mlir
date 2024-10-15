@@ -1,2 +1,1 @@
-add_subdirectory(snn-mlir/Dialect)
-
+add_subdirectory(snn-mlir)
