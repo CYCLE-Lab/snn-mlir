@@ -7,8 +7,8 @@
 
 namespace py = pybind11;
 
-PYBIND11_MODULE(_mlirRegisterEverything, m) {
-  m.doc() = "SNN-MLIR Dialects Registration";
+PYBIND11_MODULE(_snn, m) {
+  m.doc() = "SNN-MLIR Python Native Extension(Dialects Registration)";
 
   m.def("register_dialects", [](MlirDialectRegistry registry) {
     mlirRegisterAllDialects(registry);
