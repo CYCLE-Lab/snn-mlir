@@ -94,4 +94,12 @@ endif()
 
 add_subdirectory(include)
 add_subdirectory(lib)
+add_subdirectory(test)
 add_subdirectory(tools)
+
+
+set(LIT_ARGS_DEFAULT "-sv")
+if (MSVC_IDE OR XCODE)
+  set(LIT_ARGS_DEFAULT "${LIT_ARGS_DEFAULT} --no-progress-bar")
+endif()
+set(LLVM_LIT_ARGS "${LIT_ARGS_DEFAULT}" CACHE STRING "Default options for lit")
