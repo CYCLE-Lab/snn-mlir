@@ -38,4 +38,6 @@ cmake -G Ninja .. \
   -DSNNMLIR_ENABLE_BINDINGS_PYTHON=ON
 
 ninja
+
+ninja snn-opt
 ```

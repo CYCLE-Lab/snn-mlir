@@ -1,4 +1,4 @@
-add_mlir_dialect_library(SNN
+add_mlir_dialect_library(MLIRSNN
 		snn.cpp
 		
         ADDITIONAL_HEADER_DIRS

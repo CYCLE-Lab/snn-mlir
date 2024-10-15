@@ -19,9 +19,9 @@ PYBIND11_MODULE(_snn, m) {
   llvm::sys::PrintStackTraceOnErrorSignal(/*argv=*/"");
   LLVMEnablePrettyStackTrace();
 
-  m.def("register_dialects", [](MlirDialectRegistry registry) {
+  m.def("register_dialects", [](py::object capsule) {
     // Get the MlirContext capsule from PyMlirContext capsule.
-    auto wrappedCapsule = pybind11::capsule.attr(MLIR_PYTHON_CAPI_PTR_ATTR);
+    auto wrappedCapsule = capsule.attr(MLIR_PYTHON_CAPI_PTR_ATTR);
     MlirContext context = mlirPythonCapsuleToContext(wrappedCapsule.ptr());
 
     MlirDialectHandle snn = mlirGetDialectHandle__snn__();

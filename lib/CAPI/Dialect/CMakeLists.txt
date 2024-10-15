@@ -6,5 +6,5 @@ add_mlir_public_c_api_library(SNNMLIRCAPISNN
 
   LINK_LIBS PUBLIC
   MLIRCAPIIR
-  SNN
+  MLIRSNN
   )

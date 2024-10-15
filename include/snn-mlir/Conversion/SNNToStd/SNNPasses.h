@@ -15,8 +15,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
-#ifndef MLIR_SNN_PASSES_H
-#define MLIR_SNN_PASSES_H
+#ifndef MLIR_SNN_TO_STD_PASSES_H
+#define MLIR_SNN_TO_STD_PASSES_H
 
 #include <memory>
 
@@ -27,4 +27,4 @@ std::unique_ptr<mlir::Pass> createSNNToStdPass();
 } 
 
 
-#endif // MLIR_HELLO_PASSES_H
+#endif // MLIR_SNN_TO_STD_PASSES_H

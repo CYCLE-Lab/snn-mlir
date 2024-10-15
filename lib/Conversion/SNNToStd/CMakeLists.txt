@@ -4,9 +4,6 @@ add_mlir_dialect_library(SNNToStd
         ADDITIONAL_HEADER_DIRS
         ${PROJECT_SOURCE_DIR}/include/snn-mlir/Conversion/SNNToStd
 
-        
-        
-
 	LINK_LIBS PUBLIC
 	MLIRIR
 	)
