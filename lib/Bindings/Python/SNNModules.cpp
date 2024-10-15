@@ -8,24 +8,22 @@
 
 #include <pybind11/pybind11.h>
 
-// 你自定义的Dialect和Ops定义头文件
-#include "snn-mlir/Dialect/SNN/SNNOps.h"
-#include "snn-mlir/Dialect/SNN/SNNDialect.h"
+#include "snn-mlir-c/SNN.h"
 
-namespace py = pybind11;
+using namespace mlir::python::adaptors;
 
 PYBIND11_MODULE(_snn, m) {
   m.doc() = "SNN-MLIR Python Native Extension(Dialects Registration)";
-  llvm::sys::PrintStackTraceOnErrorSignal(/*argv=*/"");
-  LLVMEnablePrettyStackTrace();
+  auto snn = m.def_submodule("snn");
 
-  m.def("register_dialects", [](py::object capsule) {
-    // Get the MlirContext capsule from PyMlirContext capsule.
-    auto wrappedCapsule = capsule.attr(MLIR_PYTHON_CAPI_PTR_ATTR);
-    MlirContext context = mlirPythonCapsuleToContext(wrappedCapsule.ptr());
-
-    MlirDialectHandle snn = mlirGetDialectHandle__snn__();
-    mlirDialectHandleRegisterDialect(snn, context);
-    mlirDialectHandleLoadDialect(snn, context);
-  });
+  snn.def(
+      "register_dialect",
+      [](MlirContext context, bool load) {
+        MlirDialectHandle handle = mlirGetDialectHandle__snn__();
+        mlirDialectHandleRegisterDialect(handle, context);
+        if (load) {
+          mlirDialectHandleLoadDialect(handle, context);
+        }
+      },
+      py::arg("context") = py::none(), py::arg("load") = true);
 }
