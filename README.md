@@ -34,7 +34,8 @@ cd build
 cmake -G Ninja .. \
   -DLLVM_DIR=$PWD/../third_party/llvm-project/build/lib/cmake/llvm \
   -DMLIR_DIR=$PWD/../third_party/llvm-project/build/lib/cmake/mlir \
-  -DCMAKE_BUILD_TYPE=DEBUG
+  -DCMAKE_BUILD_TYPE=DEBUG \
+  -DSNNMLIR_ENABLE_BINDINGS_PYTHON=ON
 
 ninja snn-opt
 ```
