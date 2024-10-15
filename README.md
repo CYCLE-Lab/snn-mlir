@@ -37,5 +37,5 @@ cmake -G Ninja .. \
   -DCMAKE_BUILD_TYPE=DEBUG \
   -DSNNMLIR_ENABLE_BINDINGS_PYTHON=ON
 
-ninja snn-opt
+ninja
 ```

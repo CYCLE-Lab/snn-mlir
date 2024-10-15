@@ -10,4 +10,4 @@
 
 include "snn-mlir/Dialect/SNN/SNNOps.td"
 
-#endif
+#endif // PYTHON_BINDINGS_SNN_OPS

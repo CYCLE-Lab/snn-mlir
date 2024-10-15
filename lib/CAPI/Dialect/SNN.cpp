@@ -4,6 +4,6 @@
 #include "mlir/CAPI/Registration.h"
 
 using namespace mlir;
-using namespace snn-mlir;
+using namespace snn;
 
 MLIR_DEFINE_CAPI_DIALECT_REGISTRATION(SNN, snn, snn::SNNDialect)
