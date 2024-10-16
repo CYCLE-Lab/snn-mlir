@@ -19,9 +19,8 @@ jobs:
     - name: Setup Python
       uses: actions/setup-python@v5
 
-    - name: Install Ninja
-      if: runner.os != 'Linux'
-      uses: llvm/actions/install-ninja@main
+    - name: Install Ninja on Linux
+      run: sudo apt-get install ninja-build
 
     - uses: actions/checkout@v4
 
