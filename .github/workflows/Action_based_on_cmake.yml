@@ -31,12 +31,6 @@ jobs:
     - name: Submodule Update
       run: git submodule update --recursive
 
-    - name: Producer Build dir
-      run: |
-          mkdir ./third_party/llvm-project/build/
-          mkdir ./build/
-
-
     - name: LLVM Configure CMake
       working-directory: ${{github.workspace}}/third_party/llvm-project/build/
       run: | 
