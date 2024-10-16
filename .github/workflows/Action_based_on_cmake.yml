@@ -29,16 +29,16 @@ jobs:
       run: git submodule init
 
     - name: Submodule Update
-      run: git submodule update
+      run: git submodule update --recursive
 
     - name: Producer Build dir
       run: |
-          mkdir ${{github.workspace}}/third_party/llvm-project/build
-          mkdir build
+          mkdir ./third_party/llvm-project/build/
+          mkdir ./build/
 
 
     - name: LLVM Configure CMake
-      working-directory: ${{github.workspace}}/third_party/llvm-project/build
+      working-directory: ${{github.workspace}}/third_party/llvm-project/build/
       run: | 
           cmake -G Ninja ../llvm \
             -DLLVM_ENABLE_PROJECTS=mlir \
@@ -50,7 +50,7 @@ jobs:
             -DLLVM_ENABLE_LIBEDIT=OFF
 
     - name: LLVM Build
-      working-directory: ${{github.workspace}}/third_party/llvm-project/build
+      working-directory: ${{github.workspace}}/third_party/llvm-project/build/
       run: ninja
 
     - name: Configure CMake
