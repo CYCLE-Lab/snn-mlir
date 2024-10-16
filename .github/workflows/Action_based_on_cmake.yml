@@ -29,12 +29,12 @@ jobs:
       run: git submodule init
 
     - name: Submodule Update
-      run: git submodule update --recursive
+      run: git submodule update --init --recursive
 
     - name: LLVM Configure CMake
       run: | 
-          cd ${{github.workspace}}/third_party/llvm-project && \
-          cmake -B build -G Ninja llvm  \
+          cmake -B llvm-build -G Ninja \
+            "${{github.workspace}}/third_party/llvm-project/llvm"  \
             -DLLVM_ENABLE_PROJECTS=mlir \
             -DLLVM_TARGETS_TO_BUILD="host" \
             -DCMAKE_BUILD_TYPE=Release \
@@ -44,13 +44,13 @@ jobs:
             -DLLVM_ENABLE_LIBEDIT=OFF
 
     - name: LLVM Build
-      run: cd ${{github.workspace}}/third_party/llvm-project/build && ninja
+      run: cd "llvm-build" && ninja
 
     - name: Configure CMake
       run: |
-          cmake -B ${{github.workspace}}/build -G Ninja . \
-            -DLLVM_DIR=$PWD/../third_party/llvm-project/build/lib/cmake/llvm \
-            -DMLIR_DIR=$PWD/../third_party/llvm-project/build/lib/cmake/mlir \
+          cmake -B "${{github.workspace}}/build" -G Ninja . \
+            -DLLVM_DIR=llvm-build/lib/cmake/llvm \
+            -DMLIR_DIR=llvm-build/lib/cmake/mlir \
             -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} \
             -DSNNMLIR_ENABLE_BINDINGS_PYTHON=ON
 
