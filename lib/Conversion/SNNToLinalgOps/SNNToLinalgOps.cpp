@@ -63,32 +63,32 @@ struct lifOpConversion : public OpRewritePattern<snn::lifOp> {
   float subtau = 1.0f - tau;
   //auto subtauAttr = rewriter.getF32FloatAttr(subtau);
   Value subtauValue = rewriter.create<arith::ConstantOp>(loc, rewriter.getF32Type(), rewriter.getF32FloatAttr(subtau));
-  Value tauTensor = rewriter.create<tensor::EmptyOp>(loc, voltageType.cast<ShapedType>().getShape(), voltageType.cast<ShapedType>().getElementType());
+  Value tauTensor = rewriter.create<tensor::EmptyOp>(loc, cast<ShapedType>(voltageType).getShape(), cast<ShapedType>(voltageType).getElementType());
   Value tauBroadcast = rewriter.create<linalg::FillOp>(loc, subtauValue, tauTensor).getResult(0);
 
   //计算voltage * (1 - tau)
-  Value outVoltage = rewriter.create<tensor::EmptyOp>(loc, voltageType.cast<ShapedType>().getShape(), voltageType.cast<ShapedType>().getElementType());
+  Value outVoltage = rewriter.create<tensor::EmptyOp>(loc, cast<ShapedType>(voltageType).getShape(), cast<ShapedType>(voltageType).getElementType());
   Value decayedVoltage = rewriter.create<linalg::MulOp>(loc, outVoltage.getType(), ValueRange{voltage, tauBroadcast}, outVoltage).getResult(0);
 
   //计算voltage * (1 - tau) + input
-  Value finalVoltage = rewriter.create<tensor::EmptyOp>(loc, voltageType.cast<ShapedType>().getShape(),voltageType.cast<ShapedType>().getElementType());
+  Value finalVoltage = rewriter.create<tensor::EmptyOp>(loc, cast<ShapedType>(voltageType).getShape(),cast<ShapedType>(voltageType).getElementType());
   Value addtensor = rewriter.create<linalg::AddOp>(loc, finalVoltage.getType(), ValueRange{input, decayedVoltage}, finalVoltage ).getResult(0);
 
   //构建阈值tensor
-  Value thresholdemp = rewriter.create<tensor::EmptyOp>(loc, addtensor.getType().cast<ShapedType>().getShape(), addtensor.getType().cast<ShapedType>().getElementType());
+  Value thresholdemp = rewriter.create<tensor::EmptyOp>(loc, cast<ShapedType>(addtensor.getType()).getShape(), cast<ShapedType>(addtensor.getType()).getElementType());
   Value thresholdValue = rewriter.create<arith::ConstantOp>(loc, rewriter.getF32Type(), rewriter.getF32FloatAttr(threshold));
   Value thresholdTensor = rewriter.create<linalg::FillOp>(loc, thresholdValue, thresholdemp).getResult(0);
 
   // 获取输入张量的类型
-  auto inputRank = voltageType.cast<ShapedType>().getRank(); // 输入的维度
+  auto inputRank = cast<ShapedType>(voltageType).getRank(); // 输入的维度
   // auto dim = 0; 
 
   // 使用 computeIteratorTypesAndIndexingMaps 创建迭代器类型和索引映射
   auto [iteratorTypes, indexingMaps] = computeIteratorTypesAndIndexingMaps(rewriter, inputRank);
 
   // 创建输出张量
-  auto cmpType = RankedTensorType::get(voltageType.dyn_cast<RankedTensorType>().getShape(), voltageType.dyn_cast<RankedTensorType>().getElementType()); 
-  Value cmpTensoremp = rewriter.create<tensor::EmptyOp>(loc, voltageType.dyn_cast<RankedTensorType>().getShape(), voltageType.dyn_cast<RankedTensorType>().getElementType());
+  auto cmpType = RankedTensorType::get(dyn_cast<RankedTensorType>(voltageType).getShape(), dyn_cast<RankedTensorType>(voltageType).getElementType()); 
+  Value cmpTensoremp = rewriter.create<tensor::EmptyOp>(loc, dyn_cast<RankedTensorType>(voltageType).getShape(), dyn_cast<RankedTensorType>(voltageType).getElementType());
 
   // 创建 linalg::GenericOp
   auto updataop = rewriter.create<linalg::GenericOp>(

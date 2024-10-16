@@ -26,8 +26,8 @@ struct MemRefCopyUnrollPattern : public OpRewritePattern<memref::CopyOp> {
  
 
     // 获取 source 和 target 的类型
-    auto sourceType = copyOp.getSource().getType().cast<MemRefType>();
-    auto targetType = copyOp.getTarget().getType().cast<MemRefType>();
+    auto sourceType = cast<MemRefType>(copyOp.getSource().getType());
+    auto targetType = cast<MemRefType>(copyOp.getTarget().getType());
 
     // 确保是静态维度的 memref
     if (!sourceType.hasStaticShape() || !targetType.hasStaticShape())
@@ -42,7 +42,7 @@ struct MemRefCopyUnrollPattern : public OpRewritePattern<memref::CopyOp> {
     SmallVector<Value, 4> loopIvs;  // 存储循环的循环索引变量
 
     // 创建循环 (对于每个维度)
-    for (int64_t i = 0; i < sourceShape.size(); ++i) {
+    for (size_t i = 0; i < sourceShape.size(); ++i) {
       int64_t dimSize = sourceShape[i];  // 获取维度的大小
       // Value lowerBound = rewriter.create<arith::ConstantIndexOp>(loc, 0);  // 下界为0
       // Value upperBound = rewriter.create<arith::ConstantIndexOp>(loc, dimSize);  // 上界为维度大小

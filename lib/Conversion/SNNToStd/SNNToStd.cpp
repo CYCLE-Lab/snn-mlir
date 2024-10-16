@@ -45,10 +45,10 @@ struct lifOpLowering : public OpRewritePattern<snn::lifOp> {
 
   // 1. 将标量 tau 转换为张量，以匹配 voltage 的类型
   Value tauConst = rewriter.create<arith::ConstantOp>(loc, rewriter.getF32FloatAttr(tau));
-  Value tauTensor = rewriter.create<tensor::SplatOp>(loc, voltage.getType(), tauConst);
+  auto tauTensor = rewriter.create<tensor::SplatOp>(loc, voltage.getType(), tauConst);
 
   // 计算衰减电压和输入加权和 (voltage = voltage * (1 - tau) + input)
-  Value oneMinusTau = rewriter.create<arith::SubFOp>(loc, rewriter.create<arith::ConstantOp>(loc, rewriter.getF32FloatAttr(1.0f)), tauConst);
+  Value oneMinusTau = rewriter.create<arith::SubFOp>(loc, rewriter.create<arith::ConstantOp>(loc, rewriter.getF32FloatAttr(1.0f)), tauTensor);
   Value oneMinusTauTensor = rewriter.create<tensor::SplatOp>(loc, voltage.getType(), oneMinusTau);
 
   // 计算 decayedVoltage
@@ -69,7 +69,7 @@ struct lifOpLowering : public OpRewritePattern<snn::lifOp> {
   Value thresholdTensor = rewriter.create<tensor::SplatOp>(loc, updatedVoltage.getType(), thresholdVal);
 
     // 获取张量的形状
-  auto tType = updatedVoltage.getType().cast<RankedTensorType>();
+  auto tType = cast<RankedTensorType>(updatedVoltage.getType());
   auto shape = tType.getShape();
   // auto emptyTensor = rewriter.create<tensor::EmptyOp>(loc, shape, rewriter.getF32Type());
   // llvm::outs() << emptyTensor;
