@@ -33,7 +33,7 @@ jobs:
 
     - name: LLVM Configure CMake
       run: | 
-          cd ${{github.workspace}}/third_party/llvm-project;
+          cd ${{github.workspace}}/third_party/llvm-project && \
           cmake -B build -G Ninja llvm  \
             -DLLVM_ENABLE_PROJECTS=mlir \
             -DLLVM_TARGETS_TO_BUILD="host" \
