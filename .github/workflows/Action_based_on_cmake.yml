@@ -32,8 +32,8 @@ jobs:
 
     - name: LLVM Configure CMake
       run: | 
-          cmake -B llvm-build -G Ninja \
-            "${{github.workspace}}/third_party/llvm-project/llvm"  \
+          cd "${{github.workspace}}/third_party/llvm-project" &&
+          cmake -B build -G Ninja llvm \
             -DLLVM_ENABLE_PROJECTS=mlir \
             -DLLVM_TARGETS_TO_BUILD="host" \
             -DCMAKE_BUILD_TYPE=Release \
@@ -43,7 +43,7 @@ jobs:
             -DLLVM_ENABLE_LIBEDIT=OFF
 
     - name: LLVM Build
-      run: cd "llvm-build" && ninja
+      run: cd "${{github.workspace}}/third_party/llvm-project/build" && ninja
 
     - name: Configure CMake
       run: |
