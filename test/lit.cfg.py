@@ -5,7 +5,7 @@ import lit.formats
 from lit.llvm import llvm_config
 
 # name: The name of this test suite.
-config.name = "Spiking Neural Network"
+config.name = "Super Neural Network"
 
 # Specify the test format.
 config.test_format = lit.formats.ShTest(not llvm_config.use_lit_shell)
@@ -35,13 +35,12 @@ config.excludes = [
 
 # Adjust the PATH to include the tools directory.
 llvm_config.with_environment("PATH", config.llvm_tools_dir, append_path=True)
-#llvm_config.with_environment('PATH', config.polygeist_tools_dir, append_path=True)
 
 # Tweak the PYTHONPATH to include the binary dir.
 if config.enable_bindings_python:
   llvm_config.with_environment(
       'PYTHONPATH',
-      [os.path.join(config.snnmlir_python_packages_dir, 'snn-mlir_core')],
+      [os.path.join(config.snnmlir_python_packages_dir, 'snn_mlir_core')],
       append_path=True)
 
 # Define the tool directories.

@@ -1,3 +1,6 @@
-# RUN: %python %s | FileCheck %s
+# RUN: %python %s
 
-from ._mlir_libs._snn import *
+# export PYTHONPATH=$PYTHONPATH:/data/dagongcheng/sheensong-test/bigProject/snn-mlir/build/python_packages/snn_mlir_core
+from snn_mlir import *
+
+from mlir.dialects import *
