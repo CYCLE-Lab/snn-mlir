@@ -19,6 +19,12 @@ jobs:
     - name: Setup Python
       uses: actions/setup-python@v5
 
+    - name: Submodule Init
+      run: git submodule init
+
+    - name: Submodule Update
+      run: git submodule update --init --recursive
+
     - name: Install Ninja on Linux
       run: sudo apt-get install ninja-build
   
