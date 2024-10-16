@@ -28,8 +28,8 @@ jobs:
       run: | 
           cd ${{github.workspace}}/third_party;
           rm -rf llvm-project;
-          git clone --single-branch --branch ln-specific git@github.com:CYCLE-Lab/llvm-project.git;
-          cd llvm-project ;
+          git clone --single-branch --branch ln-specific https://github.com/CYCLE-Lab/llvm-project.git;
+          cd llvm-project;
           cmake -B build -G Ninja llvm \
             -DLLVM_ENABLE_PROJECTS=mlir \
             -DLLVM_TARGETS_TO_BUILD="host" \
