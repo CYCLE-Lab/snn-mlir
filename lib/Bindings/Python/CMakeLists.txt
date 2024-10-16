@@ -14,6 +14,11 @@ include(AddMLIRPython)
 
 declare_mlir_python_sources(SNNMLIRBindingsPythonExtension)
 
+# add option for ignore warning: 
+#   the address of ‘MlirTypeID mlirUnrankedMemRefTypeGetTypeID()’ \
+#   will never be NULL [-Waddress]
+add_compile_options(-Wno-address)
+
 declare_mlir_python_extension(SNNMLIRBindingsPythonExtension.Core
   MODULE_NAME _snn
   ADD_TO_PARENT SNNMLIRBindingsPythonExtension

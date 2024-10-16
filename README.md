@@ -40,4 +40,6 @@ cmake -G Ninja .. \
 ninja
 
 ninja snn-opt
+
+ninja check-snn-lit
 ```
