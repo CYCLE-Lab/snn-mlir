@@ -1,6 +1,4 @@
-SNN-MLIR
-
-
+SNN-MLIR (Super Neural Network Based on Multi-Level Intermediate Representation)
 
 1. Build LLVM and MLIR:
 

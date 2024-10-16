@@ -13,26 +13,54 @@ env:
 
 jobs:
   build:
-    # The CMake configure and build commands are platform agnostic and should work equally well on Windows or Mac.
-    # You can convert this to a matrix build if you need cross-platform coverage.
-    # See: https://docs.github.com/en/free-pro-team@latest/actions/learn-github-actions/managing-complex-workflows#using-a-build-matrix
     runs-on: ubuntu-latest
 
     steps:
+    - name: Setup Python
+      uses: actions/setup-python@v5
+
+    - name: Install Ninja
+      if: runner.os != 'Linux'
+      uses: llvm/actions/install-ninja@main
+
     - uses: actions/checkout@v4
 
+    - name: Submodule Init
+      run: git submodule init
+
+    - name: Submodule Update
+      run: git submodule update
+
+    - name: LLVM Configure CMake
+      working-directory: ${{github.workspace}}/third_party/llvm-project/build
+      shell: bash
+      run: | 
+          cmake -G Ninja ../llvm \
+            -DLLVM_ENABLE_PROJECTS=mlir \
+            -DLLVM_TARGETS_TO_BUILD="host" \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DLLVM_ENABLE_ASSERTIONS=ON \
+            -DLLVM_ENABLE_RTTI=ON \
+            -DMLIR_ENABLE_BINDINGS_PYTHON=ON \
+            -DLLVM_ENABLE_LIBEDIT=OFF
+
+    - name: LLVM Build
+      working-directory: ${{github.workspace}}/third_party/llvm-project/build
+      run: ninja
+
     - name: Configure CMake
-      # Configure CMake in a 'build' subdirectory. `CMAKE_BUILD_TYPE` is only required if you are using a single-configuration generator such as make.
-      # See https://cmake.org/cmake/help/latest/variable/CMAKE_BUILD_TYPE.html?highlight=cmake_build_type
-      run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
+      run: |
+          cmake -B ${{github.workspace}}/build -G Ninja . \
+            -DLLVM_DIR=$PWD/../third_party/llvm-project/build/lib/cmake/llvm \
+            -DMLIR_DIR=$PWD/../third_party/llvm-project/build/lib/cmake/mlir \
+            -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} \
+            -DSNNMLIR_ENABLE_BINDINGS_PYTHON=ON
 
     - name: Build
-      # Build your program with the given configuration
-      run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}}
+      working-directory: ${{github.workspace}}/build
+      run: ninja
 
     - name: Test
       working-directory: ${{github.workspace}}/build
-      # Execute tests defined by the CMake configuration.
-      # See https://cmake.org/cmake/help/latest/manual/ctest.1.html for more detail
-      run: ctest -C ${{env.BUILD_TYPE}}
+      run: ninja check-snn-lit
 
