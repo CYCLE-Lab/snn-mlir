@@ -19,12 +19,6 @@ jobs:
     - name: Setup Python
       uses: actions/setup-python@v5
 
-    - name: Submodule Init
-      run: git submodule init
-
-    - name: Submodule Update
-      run: git submodule update --init --recursive
-
     - name: Install Ninja on Linux
       run: sudo apt-get install ninja-build
   
@@ -34,6 +28,12 @@ jobs:
           sudo pip3 install pybind11
 
     - uses: actions/checkout@v4
+
+    - name: Submodule Init
+      run: git submodule init
+
+    - name: Submodule Update
+      run: git submodule update --init --recursive
 
     - name: Configure CMake
       run: |
@@ -47,7 +47,7 @@ jobs:
             -DLLVM_EXTERNAL_SNN_MLIR_SOURCE_DIR=.. 
 
     - name: Build
-      run: cd build && ninja && ninja snn-opt
+      run: cd build && ninja
 
     - name: Test
       run: cd build && ninja check-snn-lit

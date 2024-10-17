@@ -58,7 +58,7 @@ jobs:
             -DSNNMLIR_ENABLE_BINDINGS_PYTHON=ON
 
     - name: Build
-      run: cd build && ninja && ninja snn-opt
+      run: cd build && ninja
 
     - name: Test
       run: cd build && ninja check-snn-lit
