@@ -1,5 +1,5 @@
-#ifndef SNNMLIR_INITALLDIALECTS_H
-#define SNNMLIR_INITALLDIALECTS_H
+#ifndef SNN_MLIR_INITALLDIALECTS_H
+#define SNN_MLIR_INITALLDIALECTS_H
 
 #include "snn-mlir/Dialect/SNN/SNNDialect.h"
 
@@ -12,4 +12,4 @@ inline void registerAllDialects(mlir::DialectRegistry &registry) {
 
 } // namespace snn
 
-#endif // SNNMLIR_INITALLDIALECTS_H
+#endif // SNN_MLIR_INITALLDIALECTS_H

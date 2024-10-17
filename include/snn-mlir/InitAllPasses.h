@@ -1,5 +1,5 @@
-#ifndef SNNMLIR_INITALLPASSES_H
-#define SNNMLIR_INITALLPASSES_H
+#ifndef SNN_MLIR_INITALLPASSES_H
+#define SNN_MLIR_INITALLPASSES_H
 
 #include "snn-mlir/Conversion/Passes.h"
 
@@ -14,4 +14,4 @@ inline void registerAllPasses() {
 
 } // namespace snn
 
-#endif // SNNMLIR_INITALLPASSES_H
+#endif // SNN_MLIR_INITALLPASSES_H

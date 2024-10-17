@@ -31,11 +31,11 @@ config.host_arch = "@HOST_ARCH@"
 config.mlir_src_root = "@MLIR_SOURCE_DIR@"
 config.mlir_obj_root = "@MLIR_BINARY_DIR@"
 config.mlir_tools_dir = "@MLIR_TOOLS_DIR@"
-config.snnmlir_src_root = "@SNNMLIR_SOURCE_DIR@"
-config.snnmlir_obj_root = "@SNNMLIR_BINARY_DIR@"
-config.snnmlir_tools_dir = "@SNNMLIR_TOOLS_DIR@"
-config.snnmlir_python_packages_dir = "@SNNMLIR_PYTHON_PACKAGES_DIR@"
-config.enable_bindings_python = "@SNNMLIR_ENABLE_BINDINGS_PYTHON@"
+config.snn_mlir_src_root = "@SNN_MLIR_SOURCE_DIR@"
+config.snn_mlir_obj_root = "@SNN_MLIR_BINARY_DIR@"
+config.snn_mlir_tools_dir = "@SNN_MLIR_TOOLS_DIR@"
+config.snn_mlir_python_packages_dir = "@SNN_MLIR_PYTHON_PACKAGES_DIR@"
+config.enable_bindings_python = "@SNN_MLIR_ENABLE_BINDINGS_PYTHON@"
 #config.polygeist_tools_dir = "@POLYGEIST_TOOLS_DIR@"
 
 # Support substitution of the tools_dir with user parameters. This is
@@ -52,4 +52,4 @@ import lit.llvm
 lit.llvm.initialize(lit_config, config)
 
 # Let the main config do the real work.
-lit_config.load_config(config, "@SNNMLIR_SOURCE_DIR@/test/lit.cfg.py")
+lit_config.load_config(config, "@SNN_MLIR_SOURCE_DIR@/test/lit.cfg.py")

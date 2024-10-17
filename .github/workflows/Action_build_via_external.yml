@@ -39,7 +39,7 @@ jobs:
       run: |
           mkdir build && cd build
           cmake -G Ninja ../third_party/llvm-project/llvm \
-            -DCMAKE_BUILD_TYPE=Debug \
+            -DCMAKE_BUILD_TYPE=Release \
             -DLLVM_ENABLE_PROJECTS=mlir \
             -DLLVM_ENABLE_ASSERTIONS=ON \
             -DLLVM_ENABLE_RTTI=ON \

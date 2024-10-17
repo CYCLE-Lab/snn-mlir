@@ -17,7 +17,7 @@ config.suffixes = ['.mlir', '.c', '.cpp', '.py']
 config.test_source_root = os.path.dirname(__file__)
 
 # Set the root path where tests should be run.
-config.test_exec_root = os.path.join(config.snnmlir_obj_root, "test")
+config.test_exec_root = os.path.join(config.snn_mlir_obj_root, "test")
 
 config.substitutions.append(('%PATH%', config.environment['PATH']))
 config.substitutions.append(('%shlibext', config.llvm_shlib_ext))
@@ -40,11 +40,11 @@ llvm_config.with_environment("PATH", config.llvm_tools_dir, append_path=True)
 if config.enable_bindings_python:
   llvm_config.with_environment(
       'PYTHONPATH',
-      [os.path.join(config.snnmlir_python_packages_dir, 'snn_mlir_core')],
+      [os.path.join(config.snn_mlir_python_packages_dir, 'snn_mlir_core')],
       append_path=True)
 
 # Define the tool directories.
-tool_dirs = [config.snnmlir_tools_dir, config.mlir_tools_dir, config.llvm_tools_dir]
+tool_dirs = [config.snn_mlir_tools_dir, config.mlir_tools_dir, config.llvm_tools_dir]
 
 # List of tools to be substituted.
 tools = [

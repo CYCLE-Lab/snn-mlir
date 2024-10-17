@@ -1,5 +1,5 @@
-#ifndef SNNMLIR_PASSES_H
-#define SNNMLIR_PASSES_H
+#ifndef SNN_MLIR_PASSES_H
+#define SNN_MLIR_PASSES_H
 
 #include <memory>
 #include "mlir/Pass/Pass.h"
@@ -19,4 +19,4 @@ inline void registerPasses() {
 
 }
 
-#endif // SNNMLIR_PASSES_H
+#endif // SNN_MLIR_PASSES_H

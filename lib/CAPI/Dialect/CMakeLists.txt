@@ -1,4 +1,4 @@
-add_mlir_public_c_api_library(SNNMLIRCAPISNN
+add_mlir_public_c_api_library(SNN_MLIRCAPISNN
   SNN.cpp
 
   ADDITIONAL_HEADER_DIRS

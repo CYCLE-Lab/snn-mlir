@@ -6,6 +6,9 @@ set(CMAKE_BUILD_WITH_INSTALL_NAME_DIR ON)
 set(CMAKE_CXX_STANDARD 17 CACHE STRING "C++ standard to conform to")
 
 if(CMAKE_SOURCE_DIR STREQUAL CMAKE_CURRENT_SOURCE_DIR)
+  message(STATUS "SNN-MLIR out-of-tree build.")
+
+
   find_package(MLIR REQUIRED CONFIG)
 
   message(STATUS "Using MLIRConfig.cmake in: ${MLIR_DIR}")
@@ -23,37 +26,50 @@ if(CMAKE_SOURCE_DIR STREQUAL CMAKE_CURRENT_SOURCE_DIR)
   include(AddMLIR)
   include(HandleLLVMOptions)
 else()
+  message(STATUS "SNN-MLIR in-tree build.")
+
+  option(SNN_MLIR_ENABLE_BINDINGS_PYTHON "Enables MLIR Python Bindings" OFF)
+  if (SNN_MLIR_ENABLE_BINDINGS_PYTHON)
+    message(FATAL_ERROR "Python bindings require a out-of-tree build.")
+  endif()
+
   # Build via external projects mechanism
   set(MLIR_MAIN_SRC_DIR ${LLVM_MAIN_SRC_DIR}/../mlir)
   set(MLIR_INCLUDE_DIR ${MLIR_MAIN_SRC_DIR}/include)
   set(MLIR_GENERATED_INCLUDE_DIR ${LLVM_BINARY_DIR}/tools/mlir/include)
   set(MLIR_INCLUDE_DIRS "${MLIR_INCLUDE_DIR};${MLIR_GENERATED_INCLUDE_DIR}")
+  set(MLIR_CMAKE_DIR ${MLIR_MAIN_SRC_DIR}/cmake/modules)
+  set(MLIR_TABLEGEN_EXE $<TARGET_FILE:mlir-tblgen>)
+  set(MLIR_TABLEGEN_OUTPUT_DIR ${LLVM_BINARY_DIR}/tools/mlir/include)
+
+  include_directories(SYSTEM ${MLIR_INCLUDE_DIR})
+  include_directories(SYSTEM ${MLIR_TABLEGEN_OUTPUT_DIR})
 endif()
 
-# SNNMLIR Dir sets
-set(SNNMLIR_SOURCE_DIR ${PROJECT_SOURCE_DIR})
-set(SNNMLIR_BINARY_DIR ${PROJECT_BINARY_DIR})
-set(SNNMLIR_INCLUDE_DIR ${SNNMLIR_BINARY_DIR}/include )
-set(SNNMLIR_TOOLS_DIR ${SNNMLIR_BINARY_DIR}/bin)
-set(SNNMLIR_PYTHON_PACKAGES_DIR ${SNNMLIR_BINARY_DIR}/python_packages)
+# SNN_MLIR Dir sets
+set(SNN_MLIR_SOURCE_DIR ${PROJECT_SOURCE_DIR})
+set(SNN_MLIR_BINARY_DIR ${PROJECT_BINARY_DIR})
+set(SNN_MLIR_INCLUDE_DIR ${SNN_MLIR_BINARY_DIR}/include )
+set(SNN_MLIR_TOOLS_DIR ${SNN_MLIR_BINARY_DIR}/bin)
+set(SNN_MLIR_PYTHON_PACKAGES_DIR ${SNN_MLIR_BINARY_DIR}/python_packages)
 if(CMAKE_BUILD_TYPE MATCHES "^[Dd][Ee][Bb][Uu][Gg]$")
-  message(STATUS "Using SNNMLIR_SOURCE_DIR in: ${SNNMLIR_SOURCE_DIR}")
-  message(STATUS "Using SNNMLIR_BINARY_DIR in: ${SNNMLIR_BINARY_DIR}")
-  message(STATUS "Using SNNMLIR_INCLUDE_DIR in: ${SNNMLIR_INCLUDE_DIR}")
-  message(STATUS "Using SNNMLIR_TOOLS_DIR in: ${SNNMLIR_TOOLS_DIR}")
-  message(STATUS "Using SNNMLIR_PYTHON_PACKAGES_DIR in: ${SNNMLIR_PYTHON_PACKAGES_DIR}")
+  message(STATUS "Using SNN_MLIR_SOURCE_DIR in: ${SNN_MLIR_SOURCE_DIR}")
+  message(STATUS "Using SNN_MLIR_BINARY_DIR in: ${SNN_MLIR_BINARY_DIR}")
+  message(STATUS "Using SNN_MLIR_INCLUDE_DIR in: ${SNN_MLIR_INCLUDE_DIR}")
+  message(STATUS "Using SNN_MLIR_TOOLS_DIR in: ${SNN_MLIR_TOOLS_DIR}")
+  message(STATUS "Using SNN_MLIR_PYTHON_PACKAGES_DIR in: ${SNN_MLIR_PYTHON_PACKAGES_DIR}")
 endif()
 
 include_directories(${LLVM_INCLUDE_DIRS})
 include_directories(${MLIR_INCLUDE_DIRS})
-include_directories(${SNNMLIR_SOURCE_DIR}/include)
-include_directories(${SNNMLIR_BINARY_DIR}/include)
+include_directories(${SNN_MLIR_SOURCE_DIR}/include)
+include_directories(${SNN_MLIR_BINARY_DIR}/include)
 link_directories(${LLVM_BUILD_LIBRARY_DIR})
 add_definitions(${LLVM_DEFINITIONS})
 
-# SNNMLIR Python Bindings
-if(SNNMLIR_ENABLE_BINDINGS_PYTHON)
-  message(STATUS "SNNMLIR Python bindings are enabled.")
+# SNN_MLIR Python Bindings
+if(SNN_MLIR_ENABLE_BINDINGS_PYTHON)
+  message(STATUS "SNN_MLIR Python bindings are enabled.")
 
   include(MLIRDetectPythonEnv)
   mlir_configure_python_dev_packages()
@@ -75,7 +91,7 @@ if(SNNMLIR_ENABLE_BINDINGS_PYTHON)
                   "extension = '${PYTHON_MODULE_EXTENSION}'")
   endif()
 else()
-  message(STATUS "SNNMLIR Python bindings are disabled.")
+  message(STATUS "SNN_MLIR Python bindings are disabled.")
 endif()
 
 # Subdirectory

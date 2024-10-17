@@ -55,7 +55,7 @@ jobs:
             -DLLVM_DIR=$PWD/../third_party/llvm-project/build/lib/cmake/llvm \
             -DMLIR_DIR=$PWD/../third_party/llvm-project/build/lib/cmake/mlir \
             -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} \
-            -DSNNMLIR_ENABLE_BINDINGS_PYTHON=ON
+            -DSNN_MLIR_ENABLE_BINDINGS_PYTHON=ON
 
     - name: Build
       run: cd build && ninja

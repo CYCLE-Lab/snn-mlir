@@ -19,7 +19,7 @@ mkdir build
 cd build
 
 cmake -G Ninja ../third_party/llvm-project/llvm \
-    -DCMAKE_BUILD_TYPE=Debug \
+    -DCMAKE_BUILD_TYPE=Release \
     -DLLVM_ENABLE_PROJECTS=mlir \
     -DLLVM_ENABLE_ASSERTIONS=ON \
     -DLLVM_ENABLE_RTTI=ON \
@@ -74,7 +74,7 @@ cmake -G Ninja .. \
   -DLLVM_DIR=$PWD/../third_party/llvm-project/build/lib/cmake/llvm \
   -DMLIR_DIR=$PWD/../third_party/llvm-project/build/lib/cmake/mlir \
   -DCMAKE_BUILD_TYPE=DEBUG \
-  -DSNNMLIR_ENABLE_BINDINGS_PYTHON=ON
+  -DSNN_MLIR_ENABLE_BINDINGS_PYTHON=ON
 
 ninja
 

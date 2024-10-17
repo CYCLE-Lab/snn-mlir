@@ -6,9 +6,6 @@
 #include "mlir/Pass/Pass.h"
 #include "mlir/Transforms/DialectConversion.h"
 #include "llvm/ADT/Sequence.h"
-
-
-
 #include "mlir/IR/BuiltinAttributes.h"
 #include "mlir/IR/BuiltinDialect.h"
 #include "mlir/IR/BuiltinOps.h"
@@ -20,14 +17,14 @@
 #include "mlir/Support/LLVM.h"
 #include "mlir/Support/TypeID.h"
 
-
-
 #include "snn-mlir/Dialect/SNN/SNNOps.h"
 #include "snn-mlir/Dialect/SNN/SNNDialect.h"
 #include "snn-mlir/Conversion/SNNToLinalgOps/SNNToLinalgOpspasses.h"
+
 #include <memory>
 
 using namespace mlir;
+using namespace snn;
 
 // to define a computeIteratorTypesAndIndexingMaps func
 static std::tuple<SmallVector<utils::IteratorType>, SmallVector<AffineMap>>
@@ -139,5 +136,3 @@ std::unique_ptr<mlir::Pass> snn::createSNNToLinalgOpsPass() {
 }
 
 static mlir::PassRegistration<SNNToLinalgOpsPass> pass;
-
-

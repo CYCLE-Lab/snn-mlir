@@ -1,5 +1,5 @@
 llvm_canonicalize_cmake_booleans(
-  SNNMLIR_ENABLE_BINDINGS_PYTHON
+  SNN_MLIR_ENABLE_BINDINGS_PYTHON
   )
 
 configure_lit_site_cfg(${CMAKE_CURRENT_SOURCE_DIR}/lit.site.cfg.py.in
@@ -15,9 +15,9 @@ set(SNN_MLIR_TEST_DEPENDS
   llvm-dis
 )
 
-if(SNNMLIR_ENABLE_BINDINGS_PYTHON)
-  list(APPEND SNNMLIR_TEST_DEPENDS SNNMLIRPythonModules)
-  list(APPEND SNNMLIR_TEST_DEPENDS SNNPythonModules)
+if(SNN_MLIR_ENABLE_BINDINGS_PYTHON)
+  list(APPEND SNN_MLIR_TEST_DEPENDS SNN_MLIRPythonModules)
+  list(APPEND SNN_MLIR_TEST_DEPENDS SNNPythonModules)
 endif()
 
 
