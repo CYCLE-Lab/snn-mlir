@@ -97,6 +97,13 @@ cd build
 cmake --build . --target format-all
 ```
 
+or
+
+```
+cd build
+ninja format-all
+```
+
 ### 3. Automatically Run format-all after each commit
 
 [notes:This subsection is from ChatGPT.]

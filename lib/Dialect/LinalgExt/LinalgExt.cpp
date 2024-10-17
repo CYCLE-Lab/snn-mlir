@@ -44,60 +44,50 @@ namespace {
 //===----------------------------------------------------------------------===//
 
 /// Return a `memref.dim` or `tensor.dim` for the shape of `v` at `dim`.
-OpFoldResult getDimValue(OpBuilder &builder, Location loc, Value v,
-                         int64_t dim) {
+OpFoldResult getDimValue(OpBuilder &builder, Location loc, Value v, int64_t dim) {
   auto type = cast<ShapedType>(v.getType());
   if (!type.isDynamicDim(dim))
     return builder.getIndexAttr(type.getDimSize(dim));
 
-  return getAsOpFoldResult(
-      TypeSwitch<Type, Value>(v.getType())
-          .Case<RankedTensorType>([&](RankedTensorType t) -> Value {
-            return builder.create<tensor::DimOp>(loc, v, dim);
-          })
-          .Case<MemRefType>([&](MemRefType t) -> Value {
-            return builder.create<memref::DimOp>(loc, v, dim);
-          }));
+  return getAsOpFoldResult(TypeSwitch<Type, Value>(v.getType())
+                               .Case<RankedTensorType>([&](RankedTensorType t) -> Value {
+                                 return builder.create<tensor::DimOp>(loc, v, dim);
+                               })
+                               .Case<MemRefType>([&](MemRefType t) -> Value {
+                                 return builder.create<memref::DimOp>(loc, v, dim);
+                               }));
 }
 
 /// Returns a memref.subview or a tensor.extract_slice based on the type of the
 /// `source`.
-Value getSlice(OpBuilder &b, Location loc, Value source,
-               ArrayRef<OpFoldResult> offsets,
-               ArrayRef<OpFoldResult> sizes,
-               ArrayRef<OpFoldResult> strides) {
+Value getSlice(OpBuilder &b, Location loc, Value source, ArrayRef<OpFoldResult> offsets,
+               ArrayRef<OpFoldResult> sizes, ArrayRef<OpFoldResult> strides) {
   return TypeSwitch<Type, Value>(source.getType())
       .Case<RankedTensorType>([&](RankedTensorType t) -> Value {
-        return b.create<tensor::ExtractSliceOp>(loc, source, offsets, sizes,
-                                                strides);
+        return b.create<tensor::ExtractSliceOp>(loc, source, offsets, sizes, strides);
       })
       .Case<MemRefType>([&](MemRefType type) -> Value {
-        return b.create<memref::SubViewOp>(loc, source, offsets, sizes,
-                                           strides);
+        return b.create<memref::SubViewOp>(loc, source, offsets, sizes, strides);
       })
       .Default([&](Type t) { return nullptr; });
 }
 
 void getGenericEffectsImpl(
-      SmallVectorImpl<SideEffects::EffectInstance<MemoryEffects::Effect>> &effects,
-      ValueRange results, const ValueRange inputOperands,
-      ValueRange outputOperands) {
+    SmallVectorImpl<SideEffects::EffectInstance<MemoryEffects::Effect>> &effects,
+    ValueRange results, const ValueRange inputOperands, ValueRange outputOperands) {
   for (auto operand : inputOperands) {
     if (!llvm::isa<MemRefType>(operand.getType()))
       continue;
-    effects.emplace_back(MemoryEffects::Read::get(), operand,
-                         SideEffects::DefaultResource::get());
+    effects.emplace_back(MemoryEffects::Read::get(), operand, SideEffects::DefaultResource::get());
   }
   for (auto operand : outputOperands) {
     if (!llvm::isa<MemRefType>(operand.getType()))
       continue;
-    effects.emplace_back(MemoryEffects::Read::get(), operand,
-                         SideEffects::DefaultResource::get());
-    effects.emplace_back(MemoryEffects::Write::get(), operand,
-                         SideEffects::DefaultResource::get());
+    effects.emplace_back(MemoryEffects::Read::get(), operand, SideEffects::DefaultResource::get());
+    effects.emplace_back(MemoryEffects::Write::get(), operand, SideEffects::DefaultResource::get());
   }
 }
-} // Anonymous namespace
+}  // Anonymous namespace
 
 namespace linalgext {
 //===----------------------------------------------------------------------===//
@@ -123,8 +113,7 @@ LogicalResult GlobalAveragePoolingOp::verify() {
 }
 
 /// Return the iteration domain range.
-SmallVector<Range>
-GlobalAveragePoolingOp::getIterationDomain(OpBuilder &builder) {
+SmallVector<Range> GlobalAveragePoolingOp::getIterationDomain(OpBuilder &builder) {
   int64_t operandRank = getInputOperandRank();
   SmallVector<Range> loopBounds(operandRank);
   Location loc = getLoc();
@@ -141,16 +130,14 @@ GlobalAveragePoolingOp::getIterationDomain(OpBuilder &builder) {
 
 SmallVector<utils::IteratorType> GlobalAveragePoolingOp::getLoopIteratorTypes() {
   return SmallVector<utils::IteratorType>{
-      utils::IteratorType::parallel, utils::IteratorType::reduction,
-      utils::IteratorType::reduction, utils::IteratorType::parallel};
+      utils::IteratorType::parallel, utils::IteratorType::reduction, utils::IteratorType::reduction,
+      utils::IteratorType::parallel};
 }
 
 FailureOr<TilingResult>
-GlobalAveragePoolingOp::getTiledImplementation(OpBuilder &builder,
-                                               ArrayRef<OpFoldResult> offsets,
+GlobalAveragePoolingOp::getTiledImplementation(OpBuilder &builder, ArrayRef<OpFoldResult> offsets,
                                                ArrayRef<OpFoldResult> sizes) {
-  LLVM_DEBUG(llvm::dbgs()
-              << "\n[GlobalAveragePoolingOp]@getTiledImplementation offsets is:\n");
+  LLVM_DEBUG(llvm::dbgs() << "\n[GlobalAveragePoolingOp]@getTiledImplementation offsets is:\n");
   for (const auto &offset : offsets) {
     if (auto attr = offset.dyn_cast<Attribute>()) {
       LLVM_DEBUG(llvm::dbgs() << "Attribute: " << attr << "\n");
@@ -189,16 +176,14 @@ GlobalAveragePoolingOp::getTiledImplementation(OpBuilder &builder,
       outSizes[i] = sizes[i + 2];
     }
   }
-  tiledOperands.emplace_back(
-      getSlice(builder, getLoc(), getInput(), offsets, sizes, inStrides));
+  tiledOperands.emplace_back(getSlice(builder, getLoc(), getInput(), offsets, sizes, inStrides));
   tiledOperands.emplace_back(
       getSlice(builder, getLoc(), getOutput(), outOffsets, outSizes, outStrides));
 
   SmallVector<Type, 4> resultTypes;
   if (hasPureTensorSemantics())
     resultTypes.push_back(tiledOperands[1].getType());
-  Operation *tiledOp =
-      mlir::clone(builder, getOperation(), resultTypes, tiledOperands);
+  Operation *tiledOp = mlir::clone(builder, getOperation(), resultTypes, tiledOperands);
 
   return TilingResult{{tiledOp}, SmallVector<Value>(tiledOp->getResults())};
 }
@@ -207,8 +192,7 @@ LogicalResult GlobalAveragePoolingOp::getResultTilePosition(
     OpBuilder &builder, unsigned resultNumber, ArrayRef<OpFoldResult> offsets,
     ArrayRef<OpFoldResult> sizes, SmallVector<OpFoldResult> &resultOffsets,
     SmallVector<OpFoldResult> &resultSizes) {
-  LLVM_DEBUG(llvm::dbgs()
-              << "\n[GlobalAveragePoolingOp]@getResultTilePosition offsets is:\n");
+  LLVM_DEBUG(llvm::dbgs() << "\n[GlobalAveragePoolingOp]@getResultTilePosition offsets is:\n");
   for (const auto &offset : offsets) {
     if (auto attr = offset.dyn_cast<Attribute>()) {
       LLVM_DEBUG(llvm::dbgs() << "Attribute: " << attr << "\n");
@@ -262,34 +246,29 @@ ArrayAttr GlobalAveragePoolingOp::getIndexingMaps() {
   SmallVector<AffineMap> maps;
   maps.push_back(
       llvm::cast<AffineMapAttr>(
-          mlir::parseAttribute(
-              "affine_map<(d0, d1, d2, d3)[] -> (d0, d1, d2, d3)>", context))
+          mlir::parseAttribute("affine_map<(d0, d1, d2, d3)[] -> (d0, d1, d2, d3)>", context))
           .getValue());
-  maps.push_back(
-      llvm::cast<AffineMapAttr>(
-          mlir::parseAttribute(
-              "affine_map<(d0, d1, d2, d3)[] -> (d0, d3)>", context))
-          .getValue());
+  maps.push_back(llvm::cast<AffineMapAttr>(
+                     mlir::parseAttribute("affine_map<(d0, d1, d2, d3)[] -> (d0, d3)>", context))
+                     .getValue());
   cached = Builder(context).getAffineMapArrayAttr(maps);
   getOperation()->setAttr(memoizeAttr, cached);
   return cached;
 }
 
 /// Return the indexing map for a `result`.
-AffineMap GlobalAveragePoolingOp::getIndexingMapMatchingResultNumber(
-    unsigned resultNumber) {
+AffineMap GlobalAveragePoolingOp::getIndexingMapMatchingResultNumber(unsigned resultNumber) {
   assert(resultNumber == 0);
 
-  auto indexingMaps =
-      getIndexingMaps().template getAsValueRange<AffineMapAttr>();
+  auto indexingMaps = getIndexingMaps().template getAsValueRange<AffineMapAttr>();
   return *(indexingMaps.begin() + 1);
 }
 
-FailureOr<TilingResult> GlobalAveragePoolingOp::generateResultTileValue(
-    OpBuilder &b, unsigned resultNumber, ArrayRef<OpFoldResult> offsets,
-    ArrayRef<OpFoldResult> sizes) {
-  LLVM_DEBUG(llvm::dbgs()
-              << "\n[GlobalAveragePoolingOp]@generateResultTileValue offsets is:\n");
+FailureOr<TilingResult>
+GlobalAveragePoolingOp::generateResultTileValue(OpBuilder &b, unsigned resultNumber,
+                                                ArrayRef<OpFoldResult> offsets,
+                                                ArrayRef<OpFoldResult> sizes) {
+  LLVM_DEBUG(llvm::dbgs() << "\n[GlobalAveragePoolingOp]@generateResultTileValue offsets is:\n");
   for (const auto &offset : offsets) {
     if (auto attr = offset.dyn_cast<Attribute>()) {
       LLVM_DEBUG(llvm::dbgs() << "Attribute: " << attr << "\n");
@@ -313,16 +292,14 @@ FailureOr<TilingResult> GlobalAveragePoolingOp::generateResultTileValue(
   // Follow the implementation in TilingInterfaceImpl.cpp
   const AffineMap indexingMap = getIndexingMapMatchingResultNumber(resultNumber);
   if (indexingMap.isEmpty()) {
-    return emitOpError(
-        "unhandled tiled implementation generation when indexingMap is empty");
+    return emitOpError("unhandled tiled implementation generation when indexingMap is empty");
   }
 
   const SmallVector<Range> iterationDomain = getIterationDomain(b);
   const SmallVector<utils::IteratorType> iteratorTypes = getLoopIteratorTypes();
   const int64_t inRank = getInputOperandRank();
   const int64_t outRank = getOutputOperandRank();
-  SmallVector<OpFoldResult> iterationTileOffsets(inRank),
-      iterationTileSizes(inRank);
+  SmallVector<OpFoldResult> iterationTileOffsets(inRank), iterationTileSizes(inRank);
   for (const auto &range : llvm::enumerate(iterationDomain)) {
     iterationTileOffsets[range.index()] = range.value().offset;
     iterationTileSizes[range.index()] = range.value().size;
@@ -347,7 +324,7 @@ FailureOr<TilingResult> GlobalAveragePoolingOp::generateResultTileValue(
       return emitOpError("remove GatherSizes Attribute Failed!");
 
     LLVM_DEBUG(llvm::dbgs() << "\n[GlobalAveragePoolingOp]@generateResultTileValue\n"
-                << "  The gatherSizes attribute is : ");
+                            << "  The gatherSizes attribute is : ");
     for (auto size : gatherSizesAttr) {
       LLVM_DEBUG(llvm::dbgs() << size << " ,");
     }
@@ -367,13 +344,13 @@ FailureOr<TilingResult> GlobalAveragePoolingOp::generateResultTileValue(
       gatherSizes[dim] = iterationTileSizes[dim];
       if (dim == 0) {
         assert(iteratorTypes[dim] == utils::IteratorType::parallel);
-        if(offsets[dim].is<Value>()) {
+        if (offsets[dim].is<Value>()) {
           Value arg = cast<Value>(offsets[dim]);
           if (mlir::isa<BlockArgument>(arg)) {
             forBlock = dyn_cast<BlockArgument>(arg).getOwner();
           } else if (mlir::isa<mlir::affine::AffineApplyOp>(arg.getDefiningOp())) {
-            auto inputArgs = mlir::cast<mlir::affine::AffineApplyOp>(
-                arg.getDefiningOp()).getMapOperands();
+            auto inputArgs =
+                mlir::cast<mlir::affine::AffineApplyOp>(arg.getDefiningOp()).getMapOperands();
             assert(inputArgs.size() == 1 && "only support affineMap has one input!");
             forBlock = dyn_cast<BlockArgument>(inputArgs[0]).getOwner();
           } else {
@@ -384,13 +361,13 @@ FailureOr<TilingResult> GlobalAveragePoolingOp::generateResultTileValue(
           // LLVM_DEBUG(forBlock->dump());
         }
       } else if (dim == 3) {
-        if(offsets[dim - 2].is<Value>() && forBlock == nullptr) {
+        if (offsets[dim - 2].is<Value>() && forBlock == nullptr) {
           Value arg = cast<Value>(offsets[dim - 2]);
           if (mlir::isa<BlockArgument>(arg)) {
             forBlock = dyn_cast<BlockArgument>(arg).getOwner();
           } else if (mlir::isa<mlir::affine::AffineApplyOp>(arg.getDefiningOp())) {
-            auto inputArgs = mlir::cast<mlir::affine::AffineApplyOp>(
-                arg.getDefiningOp()).getMapOperands();
+            auto inputArgs =
+                mlir::cast<mlir::affine::AffineApplyOp>(arg.getDefiningOp()).getMapOperands();
             assert(inputArgs.size() == 1 && "only support affineMap has one input!");
             forBlock = dyn_cast<BlockArgument>(inputArgs[0]).getOwner();
             offsetDimBias = 1;
@@ -403,16 +380,17 @@ FailureOr<TilingResult> GlobalAveragePoolingOp::generateResultTileValue(
         }
       }
     }
-    assert(forBlock != nullptr && "get the Block of for/forall Op Failed,"
-           "please make sure the parallel dimension(0 or 3) is splitted!");
+    assert(forBlock != nullptr
+           && "get the Block of for/forall Op Failed,"
+              "please make sure the parallel dimension(0 or 3) is splitted!");
     const unsigned gatherDimNums = gatherSizesAttr.size();
     for (const size_t dim : llvm::seq<size_t>(1, inRank - 1)) {
       // update 'forBlock' for scf.for loops structure.
-      if (gatherDimNums > dim - 1){
+      if (gatherDimNums > dim - 1) {
         assert(iteratorTypes[dim] == utils::IteratorType::reduction);
         BlockArgument arg = forBlock->getArgument(dim - offsetDimBias);
         // if arg is not index, which means loop structure is scf.for.
-        if(!arg.getType().isIndex()) {
+        if (!arg.getType().isIndex()) {
           // traverse the block to find the first scf.for operation.
           for (mlir::Operation &op : forBlock->getOperations()) {
             // check if the operation is `scf.for`.
@@ -444,9 +422,9 @@ FailureOr<TilingResult> GlobalAveragePoolingOp::generateResultTileValue(
             } else if (dim == 1 && gatherDimNums == 2) {
               op = forBlock->getParentOp()->getParentOp()->getParentOp();
             } else {
-              return emitOpError() << "unsupported structure(dim=" << dim
-                  << ", gatherDimNums=" << gatherDimNums
-                  << "), when search the outside of block!";
+              return emitOpError()
+                     << "unsupported structure(dim=" << dim << ", gatherDimNums=" << gatherDimNums
+                     << "), when search the outside of block!";
             }
             // check if the operation is `scf.for`.
             if (auto forOp = llvm::dyn_cast<mlir::scf::ForOp>(op)) {
@@ -484,15 +462,13 @@ FailureOr<TilingResult> GlobalAveragePoolingOp::generateResultTileValue(
         BlockArgument arg = forBlock->getArgument(dim - offsetDimBias);
         if (Value offVal = dyn_cast<Value>(arg)) {
           //  If gather size be equal step size in dim dimension.
-          if (dyn_cast<mlir::IntegerAttr>(gatherSize).getInt() ==
-              dyn_cast<mlir::IntegerAttr>(stepAttr).getInt()) {
+          if (dyn_cast<mlir::IntegerAttr>(gatherSize).getInt()
+              == dyn_cast<mlir::IntegerAttr>(stepAttr).getInt()) {
             gatherOffset = offVal;
           } else {
-            auto expr =
-              b.getAffineDimExpr(0) * dyn_cast<mlir::IntegerAttr>(gatherSize).getInt();
+            auto expr = b.getAffineDimExpr(0) * dyn_cast<mlir::IntegerAttr>(gatherSize).getInt();
             Value applyOp =
-              affine::makeComposedAffineApply(
-                  b, getLoc(), AffineMap::get(1, 0, expr), {offVal});
+                affine::makeComposedAffineApply(b, getLoc(), AffineMap::get(1, 0, expr), {offVal});
             LLVM_DEBUG(llvm::dbgs() << "  The H dimension offset is:    ");
             LLVM_DEBUG(applyOp.dump());
             gatherOffset = applyOp;
@@ -512,15 +488,13 @@ FailureOr<TilingResult> GlobalAveragePoolingOp::generateResultTileValue(
         BlockArgument arg = forBlock->getArgument(dim - offsetDimBias);
         if (Value offVal = dyn_cast<Value>(arg)) {
           //  If gather size be equal step size in dim dimension.
-          if (dyn_cast<mlir::IntegerAttr>(gatherSize).getInt() ==
-              dyn_cast<mlir::IntegerAttr>(stepAttr).getInt()) {
+          if (dyn_cast<mlir::IntegerAttr>(gatherSize).getInt()
+              == dyn_cast<mlir::IntegerAttr>(stepAttr).getInt()) {
             gatherOffset = offVal;
           } else {
-            auto expr =
-              b.getAffineDimExpr(0) * dyn_cast<mlir::IntegerAttr>(gatherSize).getInt();
+            auto expr = b.getAffineDimExpr(0) * dyn_cast<mlir::IntegerAttr>(gatherSize).getInt();
             Value applyOp =
-              affine::makeComposedAffineApply(
-                  b, getLoc(), AffineMap::get(1, 0, expr), {offVal});
+                affine::makeComposedAffineApply(b, getLoc(), AffineMap::get(1, 0, expr), {offVal});
             LLVM_DEBUG(llvm::dbgs() << "  The W dimension offset is:    ");
             LLVM_DEBUG(applyOp.dump());
             gatherOffset = applyOp;
@@ -551,10 +525,10 @@ FailureOr<TilingResult> GlobalAveragePoolingOp::generateResultTileValue(
     }
 
     // insert Gather Op first(InsertSlice Op instead for now!)
-    Value gatherInput = getSlice(b, getLoc(), getInput(), gatherOffsets, gatherSizes,
-                                gatherStrides);
-    Value emptyTensor = getSlice(b, getLoc(), getInput(), iterationTileOffsets,
-                                iterationTileSizes, gatherStrides);
+    Value gatherInput =
+        getSlice(b, getLoc(), getInput(), gatherOffsets, gatherSizes, gatherStrides);
+    Value emptyTensor =
+        getSlice(b, getLoc(), getInput(), iterationTileOffsets, iterationTileSizes, gatherStrides);
     RankedTensorType emptyTensorTy = dyn_cast<RankedTensorType>(emptyTensor.getType());
     llvm::SmallVector<Value> emptyTensorDynSize;
     for (int i = 0; i < emptyTensorTy.getRank(); i++) {
@@ -562,25 +536,24 @@ FailureOr<TilingResult> GlobalAveragePoolingOp::generateResultTileValue(
         emptyTensorDynSize.push_back(b.create<tensor::DimOp>(getLoc(), emptyTensor, i));
       }
     }
-    Value gatherOutput = b.create<tensor::EmptyOp>(getLoc(), emptyTensorTy.getShape(),
-        emptyTensorTy.getElementType(), emptyTensorDynSize);
-    auto gatherAllOp =
-        b.create<tensor::InsertSliceOp>(getLoc(), gatherInput, gatherOutput,
-                                        gatherOffsets, gatherSizes, gatherStrides);
+    Value gatherOutput = b.create<tensor::EmptyOp>(
+        getLoc(), emptyTensorTy.getShape(), emptyTensorTy.getElementType(), emptyTensorDynSize);
+    auto gatherAllOp = b.create<tensor::InsertSliceOp>(getLoc(), gatherInput, gatherOutput,
+                                                       gatherOffsets, gatherSizes, gatherStrides);
     LLVM_DEBUG(llvm::dbgs() << "  The Gather Op is:\n    " << gatherAllOp);
 
     // then insert the Tiled Op.
     tiledOperands.emplace_back(gatherAllOp);
-    tiledOperands.emplace_back(getSlice(b, getLoc(), getOutput(), outTiledOffsets,
-                               outTiledSizes, outTiledStrides));
+    tiledOperands.emplace_back(
+        getSlice(b, getLoc(), getOutput(), outTiledOffsets, outTiledSizes, outTiledStrides));
     SmallVector<Type, 4> resultTypes;
     if (hasPureTensorSemantics())
       resultTypes.push_back(tiledOperands[1].getType());
-    Operation *tiledOp =
-        mlir::clone(b, getOperation(), resultTypes, tiledOperands);
+    Operation *tiledOp = mlir::clone(b, getOperation(), resultTypes, tiledOperands);
     LLVM_DEBUG(llvm::dbgs() << "\n  The Tiled Op is:\n    " << *tiledOp << "\n");
 
-    return TilingResult{{gatherAllOp, tiledOp}, SmallVector<Value>(tiledOp->getResults())};;
+    return TilingResult{{gatherAllOp, tiledOp}, SmallVector<Value>(tiledOp->getResults())};
+    ;
   }
 
   FailureOr<TilingResult> tilingResult =
@@ -588,21 +561,20 @@ FailureOr<TilingResult> GlobalAveragePoolingOp::generateResultTileValue(
   if (tilingResult->tiledOps.size() != 1)
     return emitOpError("failed to generate tiled implementation");
 
-  return TilingResult{
-      tilingResult->tiledOps,
-      SmallVector<Value>{tilingResult->tiledValues[resultNumber]}};
+  return TilingResult{tilingResult->tiledOps,
+                      SmallVector<Value>{tilingResult->tiledValues[resultNumber]}};
 }
 
 // cast(dynamic) -> static.
-LogicalResult GlobalAveragePoolingOp::fold(FoldAdaptor,
-                                           SmallVectorImpl<OpFoldResult> &) {
+LogicalResult GlobalAveragePoolingOp::fold(FoldAdaptor, SmallVectorImpl<OpFoldResult> &) {
   return memref::foldMemRefCast(*this);
 }
 
 // TODO: It's not clear at the moment when the function is called,
 // so it's possible that the logic needs further inprovement.
-LogicalResult GlobalAveragePoolingOp::reifyResultShapes(
-    OpBuilder &b, ReifiedRankedShapedTypeDims &reifiedReturnShapes) {
+LogicalResult
+GlobalAveragePoolingOp::reifyResultShapes(OpBuilder &b,
+                                          ReifiedRankedShapedTypeDims &reifiedReturnShapes) {
   LLVM_DEBUG(llvm::dbgs() << "\n@reifyResultShapes Start >>>\n");
 
   SmallVector<OpFoldResult> shapes;
@@ -632,11 +604,9 @@ LogicalResult GlobalAveragePoolingOp::reifyResultShapes(
 }
 
 void GlobalAveragePoolingOp::getEffects(
-    SmallVectorImpl<SideEffects::EffectInstance<MemoryEffects::Effect>>
-        &effects) {
+    SmallVectorImpl<SideEffects::EffectInstance<MemoryEffects::Effect>> &effects) {
   LLVM_DEBUG(llvm::dbgs() << "\n@GlobalAveragePoolingOp::getEffects() \n");
-  getGenericEffectsImpl(effects, getOperation()->getResults(), getDpsInputs(),
-                        getDpsInits());
+  getGenericEffectsImpl(effects, getOperation()->getResults(), getDpsInputs(), getDpsInits());
 }
 
 //===----------------------------------------------------------------------===//
@@ -653,7 +623,7 @@ void LinalgExtDialect::initialize() {
 #include "graph_compiler/Dialect/LinalgExt/LinalgExtOps.cpp.inc"
       >();
 }
-} // namespace sch_graph::linalg_ext
+}  // namespace linalgext
 
 //===----------------------------------------------------------------------===//
 // TableGen'd op method definitions

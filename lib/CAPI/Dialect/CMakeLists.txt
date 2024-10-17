@@ -1,10 +1,9 @@
-add_mlir_public_c_api_library(SNN_MLIRCAPISNN
+add_mlir_public_c_api_library(
+  SNN_MLIRCAPISNN
   SNN.cpp
-
   ADDITIONAL_HEADER_DIRS
   ${MLIR_MAIN_INCLUDE_DIR}/mlir-c
-
-  LINK_LIBS PUBLIC
+  LINK_LIBS
+  PUBLIC
   MLIRCAPIIR
-  MLIRSNN
-  )
+  MLIRSNN)

@@ -12,5 +12,5 @@ void SNNDialect::initialize() {
   addOperations<
 #define GET_OP_LIST
 #include "snn-mlir/Dialect/SNN/SNN.cpp.inc"
-  >();
+      >();
 }

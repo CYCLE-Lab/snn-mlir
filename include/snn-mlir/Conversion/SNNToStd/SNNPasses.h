@@ -24,7 +24,6 @@
 
 namespace snn {
 std::unique_ptr<mlir::Pass> createSNNToStdPass();
-} 
+}
 
-
-#endif // MLIR_SNN_TO_STD_PASSES_H
+#endif  // MLIR_SNN_TO_STD_PASSES_H

@@ -8,10 +8,8 @@
 namespace snn {
 
 // Add all the SNN_MLIR passes.
-inline void registerAllPasses() {
-  snn::registerPasses();
-}
+inline void registerAllPasses() { snn::registerPasses(); }
 
-} // namespace snn
+}  // namespace snn
 
-#endif // SNN_MLIR_INITALLPASSES_H
+#endif  // SNN_MLIR_INITALLPASSES_H

@@ -15,6 +15,5 @@ int main(int argc, char **argv) {
   snn::registerAllPasses();
 
   // 调用 MLIR opt main 函数并传递自定义的 pass
-  return mlir::failed(
-      mlir::MlirOptMain(argc, argv, "SNN optimizer driver\n", registry));
+  return mlir::failed(mlir::MlirOptMain(argc, argv, "SNN optimizer driver\n", registry));
 }

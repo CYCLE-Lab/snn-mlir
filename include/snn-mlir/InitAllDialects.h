@@ -10,6 +10,6 @@ inline void registerAllDialects(mlir::DialectRegistry &registry) {
   registry.insert<snn::SNNDialect>();
 }
 
-} // namespace snn
+}  // namespace snn
 
-#endif // SNN_MLIR_INITALLDIALECTS_H
+#endif  // SNN_MLIR_INITALLDIALECTS_H

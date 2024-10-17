@@ -40,5 +40,3 @@ void test_lif(float v1[2][2], float v2[2][2], float v3[2][2]) {
   }
   return;
 }
-
-

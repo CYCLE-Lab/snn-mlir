@@ -12,11 +12,11 @@
 namespace snn {
 
 inline void registerPasses() {
-  snn::createSNNToStdPass();     
+  snn::createSNNToStdPass();
   snn::createSNNToLinalgOpsPass();
   snn::createMemrefCopyToLoopUnrollPass();
 }
 
-}
+}  // namespace snn
 
-#endif // SNN_MLIR_PASSES_H
+#endif  // SNN_MLIR_PASSES_H

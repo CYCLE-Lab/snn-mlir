@@ -15,8 +15,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
-#ifndef MLIR_SNN_TO_LinalgOps_PASSES_H
-#define MLIR_SNN_TO_LinalgOps_PASSES_H
+#ifndef MLIR_SNN_TO_LINALGOPS_PASSES_H
+#define MLIR_SNN_TO_LINALGOPS_PASSES_H
 
 #include <memory>
 
@@ -24,7 +24,6 @@
 
 namespace snn {
 std::unique_ptr<mlir::Pass> createSNNToLinalgOpsPass();
-} 
+}
 
-
-#endif // MLIR_SNN_TO_LinalgOps_PASSES_H
+#endif  // MLIR_SNN_TO_LINALGOPS_PASSES_H

@@ -24,7 +24,6 @@
 
 namespace snn {
 std::unique_ptr<mlir::Pass> createMemrefCopyToLoopUnrollPass();
-} 
+}
 
-
-#endif // MLIR_SNN_MEMREF_COPY_TO_LOOP_UNROLL_PASS_H
+#endif  // MLIR_SNN_MEMREF_COPY_TO_LOOP_UNROLL_PASS_H
