@@ -3,14 +3,14 @@ project(snn-mlir LANGUAGES CXX C)
 
 set(CMAKE_BUILD_WITH_INSTALL_NAME_DIR ON)
 
-set(CMAKE_CXX_STANDARD 17 CACHE STRING "C++ standard to conform to")
+set(CMAKE_CXX_STANDARD
+    17
+    CACHE STRING "C++ standard to conform to")
 
 if(CMAKE_SOURCE_DIR STREQUAL CMAKE_CURRENT_SOURCE_DIR)
   message(STATUS "SNN-MLIR out-of-tree build.")
 
-
   find_package(MLIR REQUIRED CONFIG)
-
   message(STATUS "Using MLIRConfig.cmake in: ${MLIR_DIR}")
   message(STATUS "Using LLVMConfig.cmake in: ${LLVM_DIR}")
 
@@ -29,7 +29,7 @@ else()
   message(STATUS "SNN-MLIR in-tree build.")
 
   option(SNN_MLIR_ENABLE_BINDINGS_PYTHON "Enables MLIR Python Bindings" OFF)
-  if (SNN_MLIR_ENABLE_BINDINGS_PYTHON)
+  if(SNN_MLIR_ENABLE_BINDINGS_PYTHON)
     message(FATAL_ERROR "Python bindings require a out-of-tree build.")
   endif()
 
@@ -49,7 +49,7 @@ endif()
 # SNN_MLIR Dir sets
 set(SNN_MLIR_SOURCE_DIR ${PROJECT_SOURCE_DIR})
 set(SNN_MLIR_BINARY_DIR ${PROJECT_BINARY_DIR})
-set(SNN_MLIR_INCLUDE_DIR ${SNN_MLIR_BINARY_DIR}/include )
+set(SNN_MLIR_INCLUDE_DIR ${SNN_MLIR_BINARY_DIR}/include)
 set(SNN_MLIR_TOOLS_DIR ${SNN_MLIR_BINARY_DIR}/bin)
 set(SNN_MLIR_PYTHON_PACKAGES_DIR ${SNN_MLIR_BINARY_DIR}/python_packages)
 if(CMAKE_BUILD_TYPE MATCHES "^[Dd][Ee][Bb][Uu][Gg]$")
@@ -57,7 +57,9 @@ if(CMAKE_BUILD_TYPE MATCHES "^[Dd][Ee][Bb][Uu][Gg]$")
   message(STATUS "Using SNN_MLIR_BINARY_DIR in: ${SNN_MLIR_BINARY_DIR}")
   message(STATUS "Using SNN_MLIR_INCLUDE_DIR in: ${SNN_MLIR_INCLUDE_DIR}")
   message(STATUS "Using SNN_MLIR_TOOLS_DIR in: ${SNN_MLIR_TOOLS_DIR}")
-  message(STATUS "Using SNN_MLIR_PYTHON_PACKAGES_DIR in: ${SNN_MLIR_PYTHON_PACKAGES_DIR}")
+  message(
+    STATUS
+      "Using SNN_MLIR_PYTHON_PACKAGES_DIR in: ${SNN_MLIR_PYTHON_PACKAGES_DIR}")
 endif()
 
 include_directories(${LLVM_INCLUDE_DIRS})
@@ -71,24 +73,31 @@ add_definitions(${LLVM_DEFINITIONS})
 if(SNN_MLIR_ENABLE_BINDINGS_PYTHON)
   message(STATUS "SNN_MLIR Python bindings are enabled.")
 
-  include(MLIRDetectPythonEnv)
-  mlir_configure_python_dev_packages()
-  find_package(Python3 COMPONENTS Interpreter Development NumPy REQUIRED)
+  find_package(
+    Python3
+    COMPONENTS Interpreter Development NumPy
+    REQUIRED)
   if(CMAKE_BUILD_TYPE MATCHES "^[Dd][Ee][Bb][Uu][Gg]$")
     message(STATUS "Found Python include dirs: ${Python3_INCLUDE_DIRS}")
     message(STATUS "Found Python libraries: ${Python3_LIBRARIES}")
     message(STATUS "Found Python executable: ${Python3_EXECUTABLE}")
-    message(STATUS "Found numpy v${Python3_NumPy_VERSION}: ${Python3_NumPy_INCLUDE_DIRS}")
+    message(
+      STATUS
+        "Found numpy v${Python3_NumPy_VERSION}: ${Python3_NumPy_INCLUDE_DIRS}")
   endif()
+
+  include(MLIRDetectPythonEnv)
+  mlir_configure_python_dev_packages()
   include_directories(${Python3_NumPy_INCLUDE_DIRS})
 
   mlir_detect_pybind11_install()
   find_package(pybind11 CONFIG REQUIRED)
   if(CMAKE_BUILD_TYPE MATCHES "^[Dd][Ee][Bb][Uu][Gg]$")
-    message(STATUS "Found pybind11 v${pybind11_VERSION}: ${pybind11_INCLUDE_DIR}")
+    message(
+      STATUS "Found pybind11 v${pybind11_VERSION}: ${pybind11_INCLUDE_DIR}")
     message(STATUS "Python prefix = '${PYTHON_MODULE_PREFIX}', "
-                  "suffix = '${PYTHON_MODULE_SUFFIX}', "
-                  "extension = '${PYTHON_MODULE_EXTENSION}'")
+                   "suffix = '${PYTHON_MODULE_SUFFIX}', "
+                   "extension = '${PYTHON_MODULE_EXTENSION}'")
   endif()
 else()
   message(STATUS "SNN_MLIR Python bindings are disabled.")
@@ -102,7 +111,34 @@ add_subdirectory(tools)
 
 # Lit
 set(LIT_ARGS_DEFAULT "-sv")
-if (MSVC_IDE OR XCODE)
+if(MSVC_IDE OR XCODE)
   set(LIT_ARGS_DEFAULT "${LIT_ARGS_DEFAULT} --no-progress-bar")
 endif()
-set(LLVM_LIT_ARGS "${LIT_ARGS_DEFAULT}" CACHE STRING "Default options for lit")
+set(LLVM_LIT_ARGS
+    "${LIT_ARGS_DEFAULT}"
+    CACHE STRING "Default options for lit")
+
+add_custom_target(
+  format
+  COMMAND find ${CMAKE_SOURCE_DIR} -name "*.cpp" -o -name "*.h" | xargs
+          clang-format -i
+  WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+  COMMENT "Formatting all source files")
+
+add_custom_target(
+  format-cmake
+  COMMAND find ${CMAKE_SOURCE_DIR} -name 'CMakeLists.txt' -o -name '*.cmake' |
+          xargs cmake-format -i
+  WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+  COMMENT "Formatting all CMake files")
+
+add_custom_target(
+  format-python
+  COMMAND black ${CMAKE_SOURCE_DIR}
+  WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+  COMMENT "Formatting all Python files")
+
+add_custom_target(
+  format-all
+  DEPENDS format format-cmake format-python
+  COMMENT "Formatting all files (C++, CMake, Python)")

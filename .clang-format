@@ -1,0 +1,41 @@
+# .clang-format
+
+BasedOnStyle: LLVM  # Use LLVM coding style as the base
+IndentWidth: 2      # Set the number of spaces for each indentation level
+TabWidth: 2         # Set the visual width of a Tab character
+UseTab: Never        # Do not use Tabs; always use spaces for indentation
+ContinuationIndentWidth: 2  # Set the indentation width for continuation lines
+AllowShortBlocksOnASingleLine: Empty  # Allow empty blocks to be on a single line
+AllowShortCaseLabelsOnASingleLine: All  # Allow all short case labels on a single line
+AllowShortIfStatementsOnASingleLine: Empty  # Allow only empty if statements on a single line
+AllowShortLoopsOnASingleLine: Empty  # Allow only empty loops on a single line
+BreakBeforeBraces: Attach  # Attach braces to the same line as the code block
+BreakBeforeBinaryOperators: NonAssignment  # Break before non-assignment binary operators
+BreakAfterBraces: Allman  # Use Allman style (braces on a new line)
+ColumnLimit: 0  # Set no limit on line length
+CSharpStyle: false  # Disable C# style formatting
+Cpp11BracedListStyle: true  # Enable C++11 style brace list formatting
+SpaceBeforeParens: ControlStatements  # Add space before parentheses in control statements
+SpacesBeforeTrailingComments: 2  # Set number of spaces before trailing comments
+SpaceAfterCStyleCast: true  # Add space after C-style casts
+SpaceAfterTemplateKeyword: true  # Add space after template keywords
+SpacesInParentheses: false  # No spaces inside parentheses
+SpacesInCStyleCastParentheses: false  # No spaces inside C-style cast parentheses
+SortIncludes: false  # Do not sort included header files
+UseNamespaceComments: true  # Enable namespace comments
+SpaceBeforeInheritanceComma: true  # Add space before inheritance commas
+SpaceAfterInheritanceComma: true  # Add space after inheritance commas
+SpaceAfterLogicalNot: true  # Add space after logical NOT operator
+SpaceAfterUnaryPlus: true  # Add space after unary plus operator
+SpaceAfterUnaryMinus: true  # Add space after unary minus operator
+SpaceBeforeCatch: true  # Add space before catch keyword
+SpaceBeforeElse: true  # Add space before else keyword
+BinPackParameters: false  # Do not bin-pack parameters; each parameter on a new line
+BinPackArguments: false  # Do not bin-pack function arguments; each argument on a new line
+BreakBeforeTernaryOperators: true  # Break before ternary operators
+SpaceAfterTernaryOperator: true  # Add space after ternary operators
+SpacesInAngles: false  # No spaces inside angle brackets
+SpaceBeforeSquareBrackets: false  # No space before square brackets
+SpacesInSquareBrackets: false  # No spaces inside square brackets
+AlignTrailingComments: true  # Align trailing comments
+MaxEmptyLinesToKeep: 1  # Keep a maximum of 1 empty line
