@@ -29,11 +29,11 @@ jobs:
 
     - uses: actions/checkout@v4
 
-    - name: Submodule Init
-      run: git submodule init
-
-    - name: Submodule Update
-      run: git submodule update --init --recursive
+    - name: LLVM Submodule Update
+      run: |
+          cd ${{github.workspace}}/third_party;
+          rm -rf llvm-project;
+          git clone --depth 10 --single-branch --branch ln-specific https://github.com/CYCLE-Lab/llvm-project.git;
 
     - name: Configure CMake
       run: |
