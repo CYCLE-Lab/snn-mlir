@@ -1,3 +1,9 @@
+//===----------------------------------------------------------------------===//
+//
+// Copyright the CYCLE LAB.
+// All rights reserved.
+//
+//===----------------------------------------------------------------------===//
 #include "mlir/Tools/mlir-opt/MlirOptMain.h"
 #include "mlir/InitAllDialects.h"
 #include "mlir/InitAllPasses.h"

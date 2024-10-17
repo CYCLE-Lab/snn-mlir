@@ -1,3 +1,9 @@
+//===----------------------------------------------------------------------===//
+//
+// Copyright the CYCLE LAB.
+// All rights reserved.
+//
+//===----------------------------------------------------------------------===//
 #include "snn-mlir/Dialect/SNN/SNNDialect.h"
 #include "snn-mlir/Dialect/SNN/SNNOps.h"
 

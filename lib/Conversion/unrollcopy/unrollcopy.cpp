@@ -1,3 +1,9 @@
+//===----------------------------------------------------------------------===//
+//
+// Copyright the CYCLE LAB.
+// All rights reserved.
+//
+//===----------------------------------------------------------------------===//
 #include "mlir/Dialect/MemRef/Transforms/Passes.h"
 
 #include "mlir/Dialect/MemRef/IR/MemRef.h"

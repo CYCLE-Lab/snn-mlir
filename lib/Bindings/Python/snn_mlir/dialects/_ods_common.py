@@ -1,3 +1,9 @@
+# ===----------------------------------------------------------------------===#
+#
+# Copyright the CYCLE LAB.
+# All rights reserved.
+#
+# ===----------------------------------------------------------------------===#
 from mlir.dialects._ods_common import (
     _cext,
     segmented_accessor,

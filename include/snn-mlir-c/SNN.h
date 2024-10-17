@@ -1,3 +1,9 @@
+//===----------------------------------------------------------------------===//
+//
+// Copyright the CYCLE LAB.
+// All rights reserved.
+//
+//===----------------------------------------------------------------------===//
 #ifndef SNN_MLIR_C_DIALECT_SNN_H
 #define SNN_MLIR_C_DIALECT_SNN_H
 
