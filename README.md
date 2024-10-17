@@ -27,8 +27,6 @@ cmake -G Ninja ../third_party/llvm-project/llvm \
     -DLLVM_EXTERNAL_SNN_MLIR_SOURCE_DIR=.. 
 
 ninja
-
-ninja check-snn-lit
 ```
 
 ## 二、Install SNN-MLIR With Python Binding

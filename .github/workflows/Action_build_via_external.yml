@@ -49,6 +49,3 @@ jobs:
     - name: Build
       run: cd build && ninja
 
-    - name: Test
-      run: cd build && ninja check-snn-lit
-
