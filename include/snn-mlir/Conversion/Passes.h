@@ -10,10 +10,10 @@
 #include <memory>
 #include "mlir/Pass/Pass.h"
 
-#include "snn-mlir/InitAllDialects.h"
-#include "snn-mlir/Conversion/SNNToStd/SNNPasses.h"
 #include "snn-mlir/Conversion/SNNToLinalgOps/SNNToLinalgOpspasses.h"
+#include "snn-mlir/Conversion/SNNToStd/SNNPasses.h"
 #include "snn-mlir/Conversion/unrollcopy/unrollcopypasses.h"
+#include "snn-mlir/InitAllDialects.h"
 
 namespace snn {
 

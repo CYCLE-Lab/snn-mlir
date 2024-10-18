@@ -28,4 +28,5 @@
 #pragma once
 
 #include "mlir/IR/BuiltinDialect.h"
+
 #include "snn-mlir/Dialect/LinalgExt/LinalgExtDialect.h.inc"

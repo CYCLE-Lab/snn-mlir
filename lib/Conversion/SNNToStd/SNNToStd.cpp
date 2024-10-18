@@ -4,14 +4,12 @@
 // All rights reserved.
 //
 //===----------------------------------------------------------------------===//
+#include <memory>
+
+#include "llvm/ADT/Sequence.h"
 #include "mlir/Dialect/Arith/IR/Arith.h"
 #include "mlir/Dialect/SCF/IR/SCF.h"
 #include "mlir/Dialect/Tensor/IR/Tensor.h"
-#include "mlir/Pass/Pass.h"
-#include "mlir/Transforms/DialectConversion.h"
-#include "mlir/Transforms/DialectConversion.h"
-#include "llvm/ADT/Sequence.h"
-
 #include "mlir/IR/BuiltinAttributes.h"
 #include "mlir/IR/BuiltinDialect.h"
 #include "mlir/IR/BuiltinOps.h"
@@ -20,13 +18,14 @@
 #include "mlir/IR/DialectRegistry.h"
 #include "mlir/IR/PatternMatch.h"
 #include "mlir/IR/ValueRange.h"
+#include "mlir/Pass/Pass.h"
 #include "mlir/Support/LLVM.h"
 #include "mlir/Support/TypeID.h"
+#include "mlir/Transforms/DialectConversion.h"
 
-#include "snn-mlir/Dialect/SNN/SNNOps.h"
-#include "snn-mlir/Dialect/SNN/SNNDialect.h"
 #include "snn-mlir/Conversion/SNNToStd/SNNPasses.h"
-#include <memory>
+#include "snn-mlir/Dialect/SNN/SNNDialect.h"
+#include "snn-mlir/Dialect/SNN/SNNOps.h"
 
 using namespace mlir;
 
@@ -130,6 +129,8 @@ void SNNToStdPass::runOnOperation() {
   }
 }
 
-std::unique_ptr<mlir::Pass> snn::createSNNToStdPass() { return std::make_unique<SNNToStdPass>(); }
+std::unique_ptr<mlir::Pass> snn::createSNNToStdPass() {
+  return std::make_unique<SNNToStdPass>();
+}
 
 static mlir::PassRegistration<SNNToStdPass> pass;

@@ -118,20 +118,19 @@ set(LLVM_LIT_ARGS
     "${LIT_ARGS_DEFAULT}"
     CACHE STRING "Default options for lit")
 
+# Codes Format Plugin
 add_custom_target(
   format
   COMMAND find ${CMAKE_SOURCE_DIR} -name "*.cpp" -o -name "*.h" | xargs
           clang-format -i
   WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
   COMMENT "Formatting all source files")
-
 add_custom_target(
   format-cmake
   COMMAND find ${CMAKE_SOURCE_DIR} -name 'CMakeLists.txt' -o -name '*.cmake' |
           xargs cmake-format -i
   WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
   COMMENT "Formatting all CMake files")
-
 add_custom_target(
   format-python
   COMMAND black ${CMAKE_SOURCE_DIR}

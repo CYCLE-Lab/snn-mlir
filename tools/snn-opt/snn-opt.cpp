@@ -4,9 +4,9 @@
 // All rights reserved.
 //
 //===----------------------------------------------------------------------===//
-#include "mlir/Tools/mlir-opt/MlirOptMain.h"
 #include "mlir/InitAllDialects.h"
 #include "mlir/InitAllPasses.h"
+#include "mlir/Tools/mlir-opt/MlirOptMain.h"
 
 #include "snn-mlir/InitAllDialects.h"
 #include "snn-mlir/InitAllPasses.h"
