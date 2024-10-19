@@ -1,6 +1,6 @@
 //===----------------------------------------------------------------------===//
 //
-// Copyright the CYCLE LAB.
+// Copyright the CYCLE Laboratory.
 // All rights reserved.
 //
 //===----------------------------------------------------------------------===//
@@ -24,7 +24,8 @@ using namespace mlir::memref;
 struct MemRefCopyUnrollPattern : public OpRewritePattern<memref::CopyOp> {
   using OpRewritePattern<memref::CopyOp>::OpRewritePattern;
 
-  LogicalResult matchAndRewrite(memref::CopyOp copyOp, PatternRewriter &rewriter) const override {
+  LogicalResult matchAndRewrite(memref::CopyOp copyOp,
+                                PatternRewriter &rewriter) const override {
     auto sourceType = cast<MemRefType>(copyOp.getSource().getType());
     auto targetType = cast<MemRefType>(copyOp.getTarget().getType());
     if (!sourceType.hasStaticShape() || !targetType.hasStaticShape())
@@ -41,8 +42,10 @@ struct MemRefCopyUnrollPattern : public OpRewritePattern<memref::CopyOp> {
       rewriter.setInsertionPointToStart(loop.getBody());
     }
     SmallVector<Value, 4> indices(loopIvs.begin(), loopIvs.end());
-    Value sourceElement = rewriter.create<memref::LoadOp>(loc, copyOp.getSource(), indices);
-    rewriter.create<memref::StoreOp>(loc, sourceElement, copyOp.getTarget(), indices);
+    Value sourceElement =
+        rewriter.create<memref::LoadOp>(loc, copyOp.getSource(), indices);
+    rewriter.create<memref::StoreOp>(loc, sourceElement, copyOp.getTarget(),
+                                     indices);
     rewriter.eraseOp(copyOp);
 
     return success();
@@ -51,22 +54,26 @@ struct MemRefCopyUnrollPattern : public OpRewritePattern<memref::CopyOp> {
 
 namespace {
 class MemrefCopyToLoopUnrollPass
-    : public mlir::PassWrapper<MemrefCopyToLoopUnrollPass, OperationPass<ModuleOp>> {
+    : public mlir::PassWrapper<MemrefCopyToLoopUnrollPass,
+                               OperationPass<ModuleOp>> {
   void getDependentDialects(mlir::DialectRegistry &registry) const override {
-    registry.insert<mlir::arith::ArithDialect, mlir::scf::SCFDialect, mlir::memref::MemRefDialect,
-                    mlir::affine::AffineDialect, mlir::linalg::LinalgDialect>();
+    registry.insert<mlir::arith::ArithDialect, mlir::scf::SCFDialect,
+                    mlir::memref::MemRefDialect, mlir::affine::AffineDialect,
+                    mlir::linalg::LinalgDialect>();
   }
   void runOnOperation() override {
     ConversionTarget target(getContext());
     target.addIllegalOp<memref::CopyOp>();
     target.addLegalDialect<mlir::arith::ArithDialect, mlir::scf::SCFDialect,
-                           mlir::memref::MemRefDialect, mlir::affine::AffineDialect,
+                           mlir::memref::MemRefDialect,
+                           mlir::affine::AffineDialect,
                            mlir::linalg::LinalgDialect>();
 
     mlir::RewritePatternSet patterns(&getContext());
     patterns.add<MemRefCopyUnrollPattern>(&getContext());
 
-    if (mlir::failed(mlir::applyPartialConversion(getOperation(), target, std::move(patterns))))
+    if (mlir::failed(mlir::applyPartialConversion(getOperation(), target,
+                                                  std::move(patterns))))
       signalPassFailure();
   }
 

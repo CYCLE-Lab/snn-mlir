@@ -29,7 +29,7 @@ BreakBeforeBraces: Attach
 # NonAssignment (break before non-assignment operators), All (break before all operators)
 BreakBeforeBinaryOperators: NonAssignment
 # Maximum line length, 0 means no limit
-ColumnLimit: 100
+ColumnLimit: 80
 # Remove space inside braces for C++11 list initialization
 Cpp11BracedListStyle: true
 # Add space before parentheses: Never, ControlStatements, Always
