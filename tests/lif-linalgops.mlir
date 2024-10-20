@@ -12,7 +12,7 @@ module {
     %cst_0 = arith.constant 1.000000e+00 : f32
     %7 = linalg.fill ins(%cst_0 : f32) outs(%6 : tensor<2x2xf32>) -> tensor<2x2xf32>
     %8 = tensor.empty() : tensor<2x2xf32>
-    %9 = linalg.generic {indexing_maps = [#map, #map, #map], iterator_types = ["parallel", "parallel"]} ins(%7, %4 : tensor<2x2xf32>, tensor<2x2xf32>) outs(%8 : tensor<2x2xf32>) {
+    %9 = linalg.generic {indexing_maps = [#map, #map, #map], iterator_types = ["parallel", "parallel"]} ins(%7, %5 : tensor<2x2xf32>, tensor<2x2xf32>) outs(%8 : tensor<2x2xf32>) {
     ^bb0(%in: f32, %in_1: f32, %out: f32):
       %10 = arith.cmpf olt, %in_1, %in : f32
       %cst_2 = arith.constant 0.000000e+00 : f32
@@ -23,4 +23,3 @@ module {
     return %9 : tensor<2x2xf32>
   }
 }
-
