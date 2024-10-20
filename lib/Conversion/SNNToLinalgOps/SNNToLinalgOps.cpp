@@ -125,6 +125,68 @@ struct lifOpConversion : public OpRewritePattern<snn::lifOp> {
   }
 };
 
+
+// To define a conversion pattern for the IF
+struct ifOpConversion : public OpRewritePattern<snn::ifOp> {
+  using OpRewritePattern::OpRewritePattern;
+  LogicalResult matchAndRewrite(snn::ifOp op,
+                                PatternRewriter &rewriter) const override {
+    Value voltage = op.getVoltage();
+    Value input = op.getInputs();
+    Location loc = op.getLoc();
+    float threshold = 1.0f;
+    Type voltageType = voltage.getType();
+    Value finalVoltage = rewriter.create<tensor::EmptyOp>(
+        loc, cast<ShapedType>(voltageType).getShape(),
+        cast<ShapedType>(voltageType).getElementType());
+    Value addtensor = rewriter
+                          .create<linalg::AddOp>(
+                              loc, finalVoltage.getType(),
+                              ValueRange{input, voltage}, finalVoltage)
+                          .getResult(0);
+    Value thresholdemp = rewriter.create<tensor::EmptyOp>(
+        loc, cast<ShapedType>(addtensor.getType()).getShape(),
+        cast<ShapedType>(addtensor.getType()).getElementType());
+    Value thresholdValue = rewriter.create<arith::ConstantOp>(
+        loc, rewriter.getF32Type(), rewriter.getF32FloatAttr(threshold));
+    Value thresholdTensor =
+        rewriter.create<linalg::FillOp>(loc, thresholdValue, thresholdemp)
+            .getResult(0);
+
+    auto inputRank = cast<ShapedType>(voltageType).getRank();
+    auto [iteratorTypes, indexingMaps] =
+        computeIteratorTypesAndIndexingMaps(rewriter, inputRank);
+    auto cmpType = RankedTensorType::get(
+        dyn_cast<RankedTensorType>(voltageType).getShape(),
+        dyn_cast<RankedTensorType>(voltageType).getElementType());
+    Value cmpTensoremp = rewriter.create<tensor::EmptyOp>(
+        loc, dyn_cast<RankedTensorType>(voltageType).getShape(),
+        dyn_cast<RankedTensorType>(voltageType).getElementType());
+
+    // build linalg::GenericOp
+    auto updataop = rewriter.create<linalg::GenericOp>(
+        loc, cmpType, ValueRange{thresholdTensor, addtensor}, cmpTensoremp,
+        indexingMaps, iteratorTypes,
+        [&](OpBuilder &b, Location loc, ValueRange args) {
+          Value thresholdElem = args[0];
+          Value voltageElem = args[1];
+          Value comparisonResult = b.create<arith::CmpFOp>(
+              loc, arith::CmpFPredicate::OLT, voltageElem, thresholdElem);
+          Value floatZero = rewriter.create<arith::ConstantOp>(
+              loc, rewriter.getF32FloatAttr(0.0f));
+          Value floatOne = rewriter.create<arith::ConstantOp>(
+              loc, rewriter.getF32FloatAttr(1.0f));
+          Value result = b.create<arith::SelectOp>(loc, comparisonResult,
+                                                   floatZero, floatOne);
+          b.create<linalg::YieldOp>(loc, result);
+        });
+    Value updataTensor = updataop.getResult(0);
+    rewriter.replaceOp(op, updataTensor);
+
+    return success();
+  }
+};
+
 namespace {
 class SNNToLinalgOpsPass
     : public mlir::PassWrapper<SNNToLinalgOpsPass, OperationPass<ModuleOp>> {
@@ -157,6 +219,7 @@ void SNNToLinalgOpsPass::runOnOperation() {
 
   mlir::RewritePatternSet patterns(&getContext());
   patterns.add<lifOpConversion>(&getContext());
+  patterns.add<ifOpConversion>(&getContext());
   if (mlir::failed(mlir::applyPartialConversion(getOperation(), target,
                                                 std::move(patterns)))) {
     signalPassFailure();

@@ -27,4 +27,20 @@ def lifOp : SNNOp<"lif", [Pure]> {
 
 
 
+def ifOp : SNNOp<"if", [Pure]> {
+  let summary = "Integrate-and-Fire (IF) neuron operation";
+  let description = [{
+    This operation simulates the behavior of a Integrate-and-Fire (IF) neuron. 
+  }];
+
+  let arguments = (ins
+    F32Tensor:$voltage,  // input tensor representing the neuron voltage
+    F32Tensor:$inputs     // input tensor representing the input current
+  );
+
+  let results = (outs
+    F32Tensor:$output    // output tensor representing the updated voltage
+  );
+}
+
 #endif
