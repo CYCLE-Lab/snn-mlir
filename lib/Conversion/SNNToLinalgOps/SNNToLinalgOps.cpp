@@ -139,11 +139,11 @@ struct ifOpConversion : public OpRewritePattern<snn::ifOp> {
     Value finalVoltage = rewriter.create<tensor::EmptyOp>(
         loc, cast<ShapedType>(voltageType).getShape(),
         cast<ShapedType>(voltageType).getElementType());
-    Value addtensor = rewriter
-                          .create<linalg::AddOp>(
-                              loc, finalVoltage.getType(),
-                              ValueRange{input, voltage}, finalVoltage)
-                          .getResult(0);
+    Value addtensor =
+        rewriter
+            .create<linalg::AddOp>(loc, finalVoltage.getType(),
+                                   ValueRange{input, voltage}, finalVoltage)
+            .getResult(0);
     Value thresholdemp = rewriter.create<tensor::EmptyOp>(
         loc, cast<ShapedType>(addtensor.getType()).getShape(),
         cast<ShapedType>(addtensor.getType()).getElementType());
