@@ -13,9 +13,9 @@
   // CHECK-NEXT:   [[CST0:%[0-9a-zA-Z_]*]] = arith.constant 3.40282347E+38 : f32
   // CHECK-NEXT:   [[V2:%[0-9a-zA-Z_]*]] = arith.minimumf [[IN]], [[CST0]] : f32
   // CHECK-NEXT:   [[V3:%[0-9a-zA-Z_]*]] = arith.maximumf [[V2]], [[CST]] : f32
+    %0 = tosa.clamp %arg0 {max_fp = 3.40282347E+38 : f32, max_int = 2147483647 : i64, min_fp = 0.000000e+00 : f32, min_int = 0 : i64} : (tensor<1x3x4x4xf32>) -> tensor<1x3x4x4xf32>
   // CHECK-NEXT:   linalg.yield [[V3]] : f32
   // CHECK-NEXT: } -> tensor<1x3x4x4xf32>
-    %0 = tosa.clamp %arg0 {max_fp = 3.40282347E+38 : f32, max_int = 2147483647 : i64, min_fp = 0.000000e+00 : f32, min_int = 0 : i64} : (tensor<1x3x4x4xf32>) -> tensor<1x3x4x4xf32>
   // CHECK-NEXT: return [[GENERIC]] : tensor<1x3x4x4xf32>  
     return %0 : tensor<1x3x4x4xf32>
   }
