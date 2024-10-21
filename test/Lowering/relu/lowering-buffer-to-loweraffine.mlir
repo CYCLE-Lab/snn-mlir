@@ -17,22 +17,22 @@ module {
   // CHECK-NEXT: scf.for [[inx1:%[0-9a-zA-Z_]*]] = [[C0]] to [[C3]] step [[C1]] {
   // CHECK-NEXT:   scf.for [[inx2:%[0-9a-zA-Z_]*]] = [[C0]] to [[C4]] step [[C1]] {
   // CHECK-NEXT:     scf.for [[inx3:%[0-9a-zA-Z_]*]] = [[C0]] to [[C4]] step [[C1]] {
+    linalg.generic {indexing_maps = [#map, #map1], iterator_types = ["parallel", "parallel", "parallel", "parallel"]} ins(%arg0 : memref<1x3x4x4xf32>) outs(%arg1 : memref<1x3x4x4xf32>) {
+    ^bb0(%in: f32, %out: f32):
   // CHECK-NEXT:       [[V0:%[0-9a-zA-Z_]*]] = memref.load [[ARG0]][[[C0]], [[inx1]], [[inx2]], [[inx3]]] : memref<1x3x4x4xf32>
   // CHECK-NEXT:       [[V1:%[0-9a-zA-Z_]*]] = arith.cmpf ult, [[V0]], [[CST0]] : f32
   // CHECK-NEXT:       [[V2:%[0-9a-zA-Z_]*]] = arith.select [[V1]], [[V0]], [[CST0]] : f32
   // CHECK-NEXT:       [[V3:%[0-9a-zA-Z_]*]] = arith.cmpf ugt, [[V2]], [[CST]] : f32
   // CHECK-NEXT:       [[V4:%[0-9a-zA-Z_]*]] = arith.select [[V3]], [[V2]], [[CST]] : f32
   // CHECK-NEXT:       memref.store [[V4]], [[ARG1]][[[C0]], [[inx1]], [[inx2]], [[inx3]]] : memref<1x3x4x4xf32>
-  // CHECK-NEXT:     }
-  // CHECK-NEXT:   }
-  // CHECK-NEXT: }
-    linalg.generic {indexing_maps = [#map, #map1], iterator_types = ["parallel", "parallel", "parallel", "parallel"]} ins(%arg0 : memref<1x3x4x4xf32>) outs(%arg1 : memref<1x3x4x4xf32>) {
-    ^bb0(%in: f32, %out: f32):
       %cst = arith.constant 0.000000e+00 : f32
       %cst_0 = arith.constant 3.40282347E+38 : f32
       %0 = arith.minimumf %in, %cst_0 : f32
       %1 = arith.maximumf %0, %cst : f32
       linalg.yield %1 : f32
+  // CHECK-NEXT:     }
+  // CHECK-NEXT:   }
+  // CHECK-NEXT: }
     }
   // CHECK-NEXT: return
     return
