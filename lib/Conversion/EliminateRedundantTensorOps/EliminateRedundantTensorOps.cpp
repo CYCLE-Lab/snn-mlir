@@ -26,31 +26,27 @@ class EliminateRedundantTensorOpsPass
     auto function = getOperation();
     mlir::PatternRewriter rewriter(function.getContext());
 
-    // 保存待删除的操作
+    // Save the operation to be deleted
     SmallVector<Operation *, 8> opsToDelete;
 
-    // 删除冗余的 expand_shape 与 extract_slice
+    // Remove redundant expand_shape and extract_slice operations
     function.walk([&](Operation *op) {
-      // 检查 expand_shape 操作
       if (auto expandOp = dyn_cast<tensor::ExpandShapeOp>(op)) {
-        // 判断是否可以消除的逻辑
+        // Determine if elimination is possible
         if (shouldEliminate_e(expandOp)) {
-          // 变量当前expandOp的所有user,更新引用,确保后续操作正确指向原始张量
+          // Traverse all users of the current expandOp, update references
           for (Operation *user : expandOp.getResult().getUsers()) {
-            // 如果是 ExtractSliceOp，则更新其user的输入
             if (isa<tensor::ExtractSliceOp>(user)) {
               for (Operation *userOfUser : user->getUsers()) {
                 for (unsigned i = 0; i < userOfUser->getNumOperands(); ++i) {
-                  // 将操作数替换为 expandOp 的源
                   if (userOfUser->getOperand(i) == user->getResult(0)) {
                     userOfUser->setOperand(i, expandOp.getSrc());
                   }
                 }
               }
-              // rewriter.eraseOp(user); // 删除不再需要的操作
-              opsToDelete.push_back(user);  // 收集待删除的操作
+              opsToDelete.push_back(user);
             } else {
-              // 如果是其他Op，则直接更新其输入
+              // If it is another Op, directly update its input
               for (unsigned i = 0; i < user->getNumOperands(); ++i) {
                 if (user->getOperand(i) == expandOp.getResult()) {
                   user->setOperand(i, expandOp.getSrc());
@@ -58,31 +54,24 @@ class EliminateRedundantTensorOpsPass
               }
             }
           }
-          // rewriter.eraseOp(expandOp); // 删除 expand 操作
-          opsToDelete.push_back(expandOp);  // 收集待删除的操作
+          opsToDelete.push_back(expandOp);
         }
       }
 
-      // 检查 insert_slice 操作
+      // Check the insert_slice operation
       else if (auto insertOp = dyn_cast<tensor::InsertSliceOp>(op)) {
-        // 判断是否可以消除的逻辑
         if (shouldEliminate_i(insertOp)) {
-          // 变量当前insertOp的所有user,更新引用,确保后续操作正确指向原始张量
           for (Operation *user : insertOp.getResult().getUsers()) {
-            // 如果是 collapse_shape，则更新collapse_shape user的输入
             if (isa<tensor::CollapseShapeOp>(user)) {
               for (Operation *userOfUser : user->getUsers()) {
                 for (unsigned i = 0; i < userOfUser->getNumOperands(); ++i) {
-                  // 将操作数替换为 insertOp 的源
                   if (userOfUser->getOperand(i) == user->getResult(0)) {
                     userOfUser->setOperand(i, insertOp.getSource());
                   }
                 }
               }
-              // rewriter.eraseOp(user); // 删除不再需要的操作
-              opsToDelete.push_back(user);  // 收集待删除的操作
+              opsToDelete.push_back(user);
             } else {
-              // 如果是其他Op，则直接更新其输入
               for (unsigned i = 0; i < user->getNumOperands(); ++i) {
                 if (user->getOperand(i) == insertOp.getResult()) {
                   user->setOperand(i, insertOp.getSource());
@@ -90,50 +79,45 @@ class EliminateRedundantTensorOpsPass
               }
             }
           }
-          // rewriter.eraseOp(insertOp); // 删除 insert 操作
-          opsToDelete.push_back(insertOp);  // 收集待删除的操作
+          opsToDelete.push_back(insertOp);
         }
       }
     });
 
-    // 删除所有待删除的操作
     for (Operation *op : opsToDelete) {
       rewriter.eraseOp(op);
     }
   }
 
   bool shouldEliminate_e(tensor::ExpandShapeOp op) {
-    // 检查操作的用户
+    // Check the users of the operation
     for (Operation *user : op.getResult().getUsers()) {
-      // 检查是否有 extract_slice
+      // Check for the existence of extract_slice
       if (isa<tensor::ExtractSliceOp>(user)) {
         auto sourceType = op.getSrc().getType();
         auto userType = user->getResult(0).getType();
 
-        // 判断 extract 类型是否可以被消除
+        // Determine if the extract type can be eliminated
         if (userType == sourceType) {
-          return true;  // 可以消除
+          return true;
         }
       }
     }
-    return false;  // 不可消除
+    return false;
   }
 
   bool shouldEliminate_i(tensor::InsertSliceOp op) {
-    // 检查操作的用户
     for (Operation *user : op.getResult().getUsers()) {
-      // 检查是否有 collapse_shape
       if (isa<tensor::CollapseShapeOp>(user)) {
         auto sourceType = op.getSource().getType();
         auto userType = user->getResult(0).getType();
 
-        // 判断 collapse_shape 类型是否可以被消除
         if (userType == sourceType) {
-          return true;  // 可以消除
+          return true;
         }
       }
     }
-    return false;  // 不可消除
+    return false;
   }
 
   void getDependentDialects(mlir::DialectRegistry &registry) const override {
