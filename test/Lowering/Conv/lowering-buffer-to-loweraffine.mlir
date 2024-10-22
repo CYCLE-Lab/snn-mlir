@@ -1,4 +1,4 @@
-// RUN: snn-opt --split-input-file  --convert-linalg-to-affine-loops --affine-loop-fusion --affine-loop-tile="tile-size=32" --fold-memref-alias-ops --lower-affine  --cse --promote-buffers-to-stack --arith-expand --sccp --canonicalize="top-down" --symbol-dce  --canonicalize %s | FileCheck %s
+// RUN: snn-opt --split-input-file --convert-linalg-to-affine-loops --affine-loop-fusion --affine-loop-tile="tile-size=32" --fold-memref-alias-ops --lower-affine --cse --promote-buffers-to-stack --arith-expand --sccp --canonicalize="top-down" --symbol-dce --canonicalize %s | FileCheck %s
 
 
 #map = affine_map<(d0, d1, d2, d3) -> (0)>

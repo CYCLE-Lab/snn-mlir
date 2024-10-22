@@ -1,4 +1,4 @@
-// RUN: snn-opt -split-input-file -pass-pipeline="builtin.module(func.func(tosa-to-linalg-named), func.func(tosa-to-tensor), func.func(tosa-to-arith), func.func(tosa-to-linalg))" %s | FileCheck %s
+// RUN: snn-opt --split-input-file --pass-pipeline="builtin.module(func.func(tosa-to-linalg-named), func.func(tosa-to-tensor), func.func(tosa-to-arith), func.func(tosa-to-linalg))" %s | FileCheck %s
 
 
 // CHECK: #[[$MAP0:.*]] = affine_map<(d0, d1) -> (0)>

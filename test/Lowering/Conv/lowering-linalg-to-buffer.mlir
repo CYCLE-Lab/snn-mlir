@@ -1,4 +1,4 @@
-// RUN: snn-opt -one-shot-bufferize="unknown-type-conversion=identity-layout-map function-boundary-type-conversion=identity-layout-map bufferize-function-boundaries" --buffer-results-to-out-params="hoist-static-allocs=1" --unroll-copy -cse %s | FileCheck %s
+// RUN: snn-opt --one-shot-bufferize="unknown-type-conversion=identity-layout-map function-boundary-type-conversion=identity-layout-map bufferize-function-boundaries" --buffer-results-to-out-params="hoist-static-allocs=1" --unroll-copy --cse %s | FileCheck %s
 
 
 // CHECK: #[[$MAP0:.*]] = affine_map<(d0, d1, d2, d3) -> (0)>
